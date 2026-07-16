@@ -77,6 +77,18 @@ return {
 	position_y = {
 		en = "Position Y offset",
 	},
+	display_settings = {
+		en = "Display",
+	},
+	gauge_settings = {
+		en = "Gauge",
+	},
+	cooldown_settings = {
+		en = "Cooldown",
+	},
+	position_settings = {
+		en = "Position",
+	},
 	class_filters = {
 		en = "Class filters",
 	},
