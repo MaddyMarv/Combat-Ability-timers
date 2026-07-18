@@ -364,13 +364,13 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 
 	local current_deployable = nil
 	local is_tracking_cooldown = false
-	
+
 	if not remaining and mod.tracked_deployables then
 		local t = Managers.time:time("gameplay")
 		for unit, data in pairs(mod.tracked_deployables) do
 			local elapsed = t - data.start_time
 			local d_rem = data.duration - elapsed
-			
+
 			if d_rem > 0 then
 				remaining = d_rem
 				duration = data.duration
@@ -389,10 +389,10 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 	if not remaining or remaining < 0.05 then
 		if mod:get("track_cooldown") ~= false then
 			local cooldown_remaining = ability_extension:remaining_ability_cooldown("combat_ability")
-			
+
 			if cooldown_remaining and cooldown_remaining > 0.05 then
 				local cooldown_mode = mod:get("cooldown_display_mode") or "smooth"
-				
+
 				if cooldown_mode == "full" then
 					local max_cooldown = ability_extension:max_ability_cooldown("combat_ability")
 					if max_cooldown and max_cooldown > 0 then
@@ -404,7 +404,7 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 					if not self._cooldown_start_value then
 						self._cooldown_start_value = cooldown_remaining
 					end
-					
+
 					remaining = cooldown_remaining
 					duration = self._cooldown_start_value
 					is_tracking_cooldown = true
@@ -448,7 +448,6 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 	local bar_h = gauge_thick
 	local is_vertical = orientation == 1
 
-	-- Apply Opacity to all
 	text_widget.style.text.text_color[1] = 255 * alpha
 	health_widget.style.text.text_color[1] = 255 * alpha
 	bar_bg.style.rect.color[1] = 160 * alpha
@@ -460,13 +459,13 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 	end
 
 	local frac = math.max(0, math.min(1, remaining / duration))
-	
+
 	if is_tracking_cooldown then
 		frac = 1 - frac
 	end
 
 	local gap = 6
-	
+
 	if is_vertical then
 		text_widget.style.text.text_vertical_alignment = "center"
 		text_widget.style.text.text_horizontal_alignment = "left"
@@ -519,7 +518,7 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 			health_color[3] = self._default_health_color[3]
 			health_color[4] = self._default_health_color[4]
 		end
-		
+
 		health_widget.dirty = true
 	else
 		health_widget.content.visible = false
@@ -556,11 +555,11 @@ HudElementAbilityTimer.update = function(self, dt, t, ui_renderer, render_settin
 		end
 
 		local fill_size = math.floor(full_w * frac)
-		
+
 		if is_vertical then
 			bar_bg.style.rect.size = { bar_h, full_w }
 			bar_fill.style.rect.size = { bar_h, fill_size }
-			
+
 			bar_fill.style.rect.vertical_alignment = "bottom"
 			bar_fill.style.rect.horizontal_alignment = "left"
 			bar_fill.style.rect.offset = {0, 0, 1}
