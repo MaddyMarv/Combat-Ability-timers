@@ -3,7 +3,9 @@
     "author": "IndicaBunny",
     "version": "1.10",
     "source": "https://github.com/MaddyMarv/Combat-Ability-timers",
-    "kofi": "https://ko-fi.com/indicabunny",
+    "funding": {
+        "kofi": "https://ko-fi.com/indicabunny"
+    },
     "description": "Adds a visual timer to your combat ability so you know exactly when it ends.",
     "order": {
         "require": [],
