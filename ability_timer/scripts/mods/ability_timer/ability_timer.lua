@@ -11,11 +11,30 @@ mod.on_enabled = function()
 	end
 
 	mod:register_hud_element({
-		class_name = "HudElementAbilityTimer",
-		filename = "ability_timer/scripts/mods/ability_timer/HudElementAbilityTimer",
-		visibility_groups = {
-			"alive",
-		},
+		class_name = "HudElementAbilityTimerText",
+		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerText",
+		visibility_groups = { "alive" },
+		use_hud_scale = false,
+	})
+
+	mod:register_hud_element({
+		class_name = "HudElementAbilityTimerBar",
+		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerBar",
+		visibility_groups = { "alive" },
+		use_hud_scale = false,
+	})
+
+	mod:register_hud_element({
+		class_name = "HudElementAbilityTimerHealth",
+		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerHealth",
+		visibility_groups = { "alive" },
+		use_hud_scale = false,
+	})
+
+	mod:register_hud_element({
+		class_name = "HudElementAbilityTimerCharges",
+		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerCharges",
+		visibility_groups = { "alive" },
 		use_hud_scale = false,
 	})
 end

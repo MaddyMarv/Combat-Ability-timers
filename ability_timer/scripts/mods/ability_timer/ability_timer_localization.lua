@@ -86,8 +86,68 @@ return {
 	cooldown_settings = {
 		en = "Cooldown",
 	},
-	position_settings = {
-		en = "Position",
+	position_settings_timer = {
+		en = "Timer Position",
+	},
+	timer_position_x = {
+		en = "Timer X offset",
+	},
+	timer_position_y = {
+		en = "Timer Y offset",
+	},
+	position_settings_bar = {
+		en = "Bar Position",
+	},
+	bar_position_x = {
+		en = "Bar X offset",
+	},
+	bar_position_y = {
+		en = "Bar Y offset",
+	},
+	position_settings_health = {
+		en = "Bubble Health Position",
+	},
+	health_position_x = {
+		en = "Bubble Health X offset",
+	},
+	health_position_y = {
+		en = "Bubble Health Y offset",
+	},
+	position_settings_charges = {
+		en = "Charges Position",
+	},
+	charges_position_x = {
+		en = "Charges X offset",
+	},
+	charges_position_y = {
+		en = "Charges Y offset",
+	},
+	timer_text_alignment = {
+		en = "Text alignment",
+	},
+	health_text_alignment = {
+		en = "Text alignment",
+	},
+	charges_text_alignment = {
+		en = "Text alignment",
+	},
+	align_left = {
+		en = "Left",
+	},
+	align_center = {
+		en = "Center",
+	},
+	align_right = {
+		en = "Right",
+	},
+	charges_settings = {
+		en = "Charges",
+	},
+	show_charges = {
+		en = "Show ability charges",
+	},
+	always_show_charges = {
+		en = "Always show charges (even at 1 or 0)",
 	},
 	class_filters = {
 		en = "Class filters",
@@ -137,7 +197,8 @@ return {
 	show_cryptic = {
 		en = "Skitarii",
 	},
-    veteran_ability_stance = { 
+
+	veteran_ability_stance = { 
 		en = "Executioner's Stance" 
 	},
 	veteran_ability_stealth = { 
