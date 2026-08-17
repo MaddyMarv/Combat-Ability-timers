@@ -315,7 +315,7 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 						is_tracking_cooldown = true
 					end
 				else
-					if not self._cooldown_start_value then
+					if not self._cooldown_start_value or cooldown_remaining > self._cooldown_start_value then
 						self._cooldown_start_value = cooldown_remaining
 					end
 
@@ -323,6 +323,8 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 					duration = self._cooldown_start_value
 					is_tracking_cooldown = true
 				end
+			else
+				self._cooldown_start_value = nil
 			end
 		end
 	end
