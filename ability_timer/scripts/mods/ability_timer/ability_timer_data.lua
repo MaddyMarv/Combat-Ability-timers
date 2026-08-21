@@ -180,6 +180,13 @@ local widgets = {
 					{ text = "align_right", value = "right" },
 				},
 			},
+			{
+				setting_id = "timer_text_size",
+				type = "numeric",
+				default_value = 28,
+				range = { 10, 100 },
+				decimals_number = 0,
+			},
 		},
 	},
 	{
@@ -215,6 +222,13 @@ local widgets = {
 					{ text = "align_right", value = "right" },
 				},
 			},
+			{
+				setting_id = "charges_text_size",
+				type = "numeric",
+				default_value = 28,
+				range = { 10, 100 },
+				decimals_number = 0,
+			},
 		},
 	},
 	{
@@ -249,6 +263,13 @@ local widgets = {
 					{ text = "align_center", value = "center" },
 					{ text = "align_right", value = "right" },
 				},
+			},
+			{
+				setting_id = "health_text_size",
+				type = "numeric",
+				default_value = 24,
+				range = { 10, 100 },
+				decimals_number = 0,
 			},
 		},
 	},

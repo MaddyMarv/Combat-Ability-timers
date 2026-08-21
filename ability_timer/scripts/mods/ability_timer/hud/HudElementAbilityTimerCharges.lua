@@ -237,10 +237,9 @@ HudElementAbilityTimerCharges.update = function(self, dt, t, ui_renderer, render
 	local pos_y = mod:get("charges_position_y") or 0
 	
 	text_widget.style.text.text_horizontal_alignment = mod:get("charges_text_alignment") or "center"
+	text_widget.style.text.font_size = mod:get("charges_text_size") or 28
 
-	local root_pos = self._ui_scenegraph.root.position
-	root_pos[1] = 695 + pos_x
-	root_pos[2] = 620 + pos_y
+	self:set_scenegraph_position("root", 695 + pos_x, 620 + pos_y, 100)
 
 	text_widget.style.text.text_color[1] = 255 * alpha
 

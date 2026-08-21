@@ -30,7 +30,7 @@ local ABILITY_GROUPS = {
 	psyker = {
 		psyker_shout = { setting_id = "psyker_ability_shout", buff_templates = { "psyker_shout_warp_generation_reduction" } },
 		psyker_shield = { setting_id = "psyker_ability_shield", buff_templates = nil },
-		psyker_overcharge_stance = { setting_id = "psyker_ability_overcharge", buff_templates = { "psyker_overcharge_stance_damage", "psyker_overcharge_stance_finesse_damage" } },
+		psyker_overcharge_stance = { setting_id = "psyker_ability_overcharge", buff_templates = { "psyker_overcharge_stance_damage", "psyker_overcharge_stance_finesse_damage", "psyker_overcharge_stance_infinite_casting", "psyker_overcharge_stance_cool_off" } },
 	},
 	ogryn = {
 		ogryn_charge = { setting_id = "ogryn_ability_charge", buff_templates = { "ogryn_charge_speed_on_lunge" } },
@@ -345,9 +345,7 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 	local pos_x = mod:get("timer_position_x") or 0
 	local pos_y = mod:get("timer_position_y") or 0
 
-	local root_pos = self._ui_scenegraph.root.position
-	root_pos[1] = 600 + pos_x
-	root_pos[2] = 620 + pos_y
+	self:set_scenegraph_position("root", 600 + pos_x, 620 + pos_y, 100)
 
 	text_widget.style.text.text_color[1] = 255 * alpha
 
@@ -359,6 +357,7 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 	if show_number then
 		text_widget.content.visible = true
 		text_widget.style.text.text_horizontal_alignment = mod:get("timer_text_alignment") or "center"
+		text_widget.style.text.font_size = mod:get("timer_text_size") or 28
 		text_widget.content.text = string.format("%.1f", remaining)
 		local text_color = text_widget.style.text.text_color
 		if is_tracking_cooldown then

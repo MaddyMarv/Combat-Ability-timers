@@ -131,6 +131,15 @@ return {
 	charges_text_alignment = {
 		en = "Text alignment",
 	},
+	timer_text_size = {
+		en = "Text size",
+	},
+	health_text_size = {
+		en = "Text size",
+	},
+	charges_text_size = {
+		en = "Text size",
+	},
 	align_left = {
 		en = "Left",
 	},

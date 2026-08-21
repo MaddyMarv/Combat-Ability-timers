@@ -201,10 +201,9 @@ HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_
 	local pos_y = mod:get("health_position_y") or 0
 	
 	health_widget.style.text.text_horizontal_alignment = mod:get("health_text_alignment") or "center"
+	health_widget.style.text.font_size = mod:get("health_text_size") or 24
 
-	local root_pos = self._ui_scenegraph.root.position
-	root_pos[1] = 661.25 + pos_x
-	root_pos[2] = 620 + pos_y
+	self:set_scenegraph_position("root", 661.25 + pos_x, 620 + pos_y, 100)
 
 	health_widget.style.text.text_color[1] = 255 * alpha
 

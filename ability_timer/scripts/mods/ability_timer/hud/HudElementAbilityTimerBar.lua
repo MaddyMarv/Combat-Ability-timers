@@ -30,7 +30,7 @@ local ABILITY_GROUPS = {
 	psyker = {
 		psyker_shout = { setting_id = "psyker_ability_shout", buff_templates = { "psyker_shout_warp_generation_reduction" } },
 		psyker_shield = { setting_id = "psyker_ability_shield", buff_templates = nil },
-		psyker_overcharge_stance = { setting_id = "psyker_ability_overcharge", buff_templates = { "psyker_overcharge_stance_damage", "psyker_overcharge_stance_finesse_damage" } },
+		psyker_overcharge_stance = { setting_id = "psyker_ability_overcharge", buff_templates = { "psyker_overcharge_stance_damage", "psyker_overcharge_stance_finesse_damage", "psyker_overcharge_stance_infinite_casting", "psyker_overcharge_stance_cool_off" } },
 	},
 	ogryn = {
 		ogryn_charge = { setting_id = "ogryn_ability_charge", buff_templates = { "ogryn_charge_speed_on_lunge" } },
@@ -369,9 +369,7 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 	local pos_x = mod:get("bar_position_x") or 0
 	local pos_y = mod:get("bar_position_y") or 0
 
-	local root_pos = self._ui_scenegraph.root.position
-	root_pos[1] = 600 + pos_x
-	root_pos[2] = 653.6 + pos_y
+	self:set_scenegraph_position("root", 600 + pos_x, 653.6 + pos_y, 100)
 
 	local full_w = gauge_len
 	local bar_h = gauge_thick
@@ -390,13 +388,10 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 		bar_bg.content.visible = true
 		bar_fill.content.visible = true
 
-		local sg_size = self._ui_scenegraph.bar.size
 		if is_vertical then
-			sg_size[1] = bar_h
-			sg_size[2] = full_w
+			self:_set_scenegraph_size("bar", bar_h, full_w)
 		else
-			sg_size[1] = full_w
-			sg_size[2] = bar_h
+			self:_set_scenegraph_size("bar", full_w, bar_h)
 		end
 
 		if mod:get("show_bracket") ~= false then
