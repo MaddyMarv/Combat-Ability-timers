@@ -8,8 +8,10 @@
         "kofi": "https://ko-fi.com/indicabunny"
     },
     "description": "Adds a visual timer to your combat ability so you know exactly when it ends.",
-    "required": [],
-    "self_before": [],
-    "self_after": [],
+    "dependencies": {
+        "required": [],
+        "self_after": [],
+        "self_before": []
+    },
     "localization": {}
 }
