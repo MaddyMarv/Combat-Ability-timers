@@ -102,17 +102,21 @@ end
 
 local function _apply_health_color(health_percent, color)
 	local clamped = math.max(0, math.min(100, health_percent or 100)) / 100
-	local r, g
+	local c_high = mod:get("high_color") or { 255, 0, 255, 0 }
+	local c_mid = mod:get("mid_color") or { 255, 255, 255, 0 }
+	local c_low = mod:get("low_color") or { 255, 255, 0, 0 }
+
 	if clamped < 0.5 then
-		r = 255
-		g = math.floor(255 * (clamped / 0.5) + 0.5)
+		local t = clamped / 0.5
+		color[2] = math.floor(c_low[2] + (c_mid[2] - c_low[2]) * t + 0.5)
+		color[3] = math.floor(c_low[3] + (c_mid[3] - c_low[3]) * t + 0.5)
+		color[4] = math.floor(c_low[4] + (c_mid[4] - c_low[4]) * t + 0.5)
 	else
-		r = math.floor(255 * (1 - (clamped - 0.5) / 0.5) + 0.5)
-		g = 255
+		local t = (clamped - 0.5) / 0.5
+		color[2] = math.floor(c_mid[2] + (c_high[2] - c_mid[2]) * t + 0.5)
+		color[3] = math.floor(c_mid[3] + (c_high[3] - c_mid[3]) * t + 0.5)
+		color[4] = math.floor(c_mid[4] + (c_high[4] - c_mid[4]) * t + 0.5)
 	end
-	color[2] = r
-	color[3] = g
-	color[4] = 0
 end
 
 local function _get_equipped_combat_ability(ability_extension)
@@ -194,7 +198,7 @@ HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_
 
 	self:_set_visible(true)
 
-	local use_color = mod:get("use_progress_color") ~= false
+	local use_color = mod:get("use_progress_color_text") ~= false
 	local health_widget = self._widgets_by_name.health_text
 	local alpha = mod:get("gauge_alpha") or 1.0
 	local pos_x = mod:get("health_position_x") or 0
@@ -216,10 +220,11 @@ HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_
 		if use_color then
 			_apply_health_color(health_percent, health_color)
 		else
-			health_color[1] = 255 * alpha
-			health_color[2] = self._default_health_color[2]
-			health_color[3] = self._default_health_color[3]
-			health_color[4] = self._default_health_color[4]
+			local custom_color = mod:get("text_color") or self._default_health_color
+			health_color[1] = custom_color[1] * alpha
+			health_color[2] = custom_color[2]
+			health_color[3] = custom_color[3]
+			health_color[4] = custom_color[4]
 		end
 
 		health_widget.dirty = true

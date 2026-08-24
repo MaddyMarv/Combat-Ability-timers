@@ -21,7 +21,25 @@ return {
 		en = "Timer only",
 	},
 	use_progress_color = {
-		en = "Use progress color",
+		en = "Use progress color (Bar)",
+	},
+	use_progress_color_text = {
+		en = "Use progress color (Text)",
+	},
+	bar_color = {
+		en = "Bar Color",
+	},
+	text_color = {
+		en = "Text Color",
+	},
+	high_color = {
+		en = "High Duration Color (Progress)",
+	},
+	mid_color = {
+		en = "Mid Duration Color (Progress)",
+	},
+	low_color = {
+		en = "Low Duration Color (Progress)",
 	},
 	show_bubble_health = {
 		en = "Show bubble health %%",
@@ -31,6 +49,9 @@ return {
 	},
 	cooldown_display_mode = {
 		en = "Cooldown display mode",
+	},
+	cooldown_color = {
+		en = "Cooldown Color",
 	},
 	cooldown_mode_smooth = {
 		en = "Smooth (start from remaining)",

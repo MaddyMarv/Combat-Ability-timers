@@ -134,17 +134,21 @@ end
 
 local function _apply_progress_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local r, g
+	local c_high = mod:get("high_color") or { 255, 0, 255, 0 }
+	local c_mid = mod:get("mid_color") or { 255, 255, 255, 0 }
+	local c_low = mod:get("low_color") or { 255, 255, 0, 0 }
+
 	if clamped < 0.5 then
-		r = 255
-		g = math.floor(255 * (clamped / 0.5) + 0.5)
+		local t = clamped / 0.5
+		color[2] = math.floor(c_low[2] + (c_mid[2] - c_low[2]) * t + 0.5)
+		color[3] = math.floor(c_low[3] + (c_mid[3] - c_low[3]) * t + 0.5)
+		color[4] = math.floor(c_low[4] + (c_mid[4] - c_low[4]) * t + 0.5)
 	else
-		r = math.floor(255 * (1 - (clamped - 0.5) / 0.5) + 0.5)
-		g = 255
+		local t = (clamped - 0.5) / 0.5
+		color[2] = math.floor(c_mid[2] + (c_high[2] - c_mid[2]) * t + 0.5)
+		color[3] = math.floor(c_mid[3] + (c_high[3] - c_mid[3]) * t + 0.5)
+		color[4] = math.floor(c_mid[4] + (c_high[4] - c_mid[4]) * t + 0.5)
 	end
-	color[2] = r
-	color[3] = g
-	color[4] = 0
 end
 
 local function _get_buff_remaining_time(buff_extension, buff_template_names)
@@ -338,7 +342,7 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 
 	local display_mode = mod:get("display_mode") or "both"
 	local show_number = display_mode == "both" or display_mode == "timer_only"
-	local use_color = mod:get("use_progress_color") ~= false
+	local use_color = mod:get("use_progress_color_text") ~= false
 
 	local text_widget = self._widgets_by_name.timer_text
 	local alpha = mod:get("gauge_alpha") or 1.0
@@ -361,17 +365,19 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 		text_widget.content.text = string.format("%.1f", remaining)
 		local text_color = text_widget.style.text.text_color
 		if is_tracking_cooldown then
-			text_color[1] = 255 * alpha
-			text_color[2] = 160
-			text_color[3] = 80
-			text_color[4] = 220
+			local cd_color = mod:get("cooldown_color") or { 220, 160, 80, 220 }
+			text_color[1] = cd_color[1] * alpha
+			text_color[2] = cd_color[2]
+			text_color[3] = cd_color[3]
+			text_color[4] = cd_color[4]
 		elseif use_color then
 			_apply_progress_color(frac, text_color)
 		else
-			text_color[1] = 255 * alpha
-			text_color[2] = self._default_text_color[2]
-			text_color[3] = self._default_text_color[3]
-			text_color[4] = self._default_text_color[4]
+			local custom_color = mod:get("text_color") or self._default_text_color
+			text_color[1] = custom_color[1] * alpha
+			text_color[2] = custom_color[2]
+			text_color[3] = custom_color[3]
+			text_color[4] = custom_color[4]
 		end
 		text_widget.dirty = true
 	else

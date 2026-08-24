@@ -127,21 +127,22 @@ local function _apply_dynamic_color(current, max, color)
     end
     fraction = math.max(0, math.min(1, fraction))
 
-    local r, g
+    local c_high = mod:get("high_color") or { 255, 0, 255, 0 }
+    local c_mid = mod:get("mid_color") or { 255, 255, 255, 0 }
+    local c_low = mod:get("low_color") or { 255, 255, 0, 0 }
+
+    local r, g, b
     if fraction == 1 then
-        r = 0
-        g = 255
+        r, g, b = c_high[2], c_high[3], c_high[4]
     elseif fraction == 0 then
-        r = 255
-        g = 0
+        r, g, b = c_low[2], c_low[3], c_low[4]
     else
-        r = 255
-        g = 255
+        r, g, b = c_mid[2], c_mid[3], c_mid[4]
     end
 
     color[2] = r
     color[3] = g
-    color[4] = 0
+    color[4] = b
 end
 
 local function _get_equipped_combat_ability(ability_extension)
@@ -247,14 +248,15 @@ HudElementAbilityTimerCharges.update = function(self, dt, t, ui_renderer, render
     text_widget.content.text = string.format("%d", remaining_charges)
     local text_color = text_widget.style.text.text_color
     
-    local use_color = mod:get("use_progress_color") ~= false
+    local use_color = mod:get("use_progress_color_text") ~= false
     if use_color then
         _apply_dynamic_color(remaining_charges, max_charges, text_color)
     else
-        text_color[1] = 255 * alpha
-        text_color[2] = self._default_text_color[2]
-        text_color[3] = self._default_text_color[3]
-        text_color[4] = self._default_text_color[4]
+        local custom_color = mod:get("text_color") or self._default_text_color
+        text_color[1] = custom_color[1] * alpha
+        text_color[2] = custom_color[2]
+        text_color[3] = custom_color[3]
+        text_color[4] = custom_color[4]
     end
     text_widget.dirty = true
 end

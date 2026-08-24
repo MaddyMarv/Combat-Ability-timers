@@ -153,17 +153,21 @@ end
 
 local function _apply_progress_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local r, g
+	local c_high = mod:get("high_color") or { 255, 0, 255, 0 }
+	local c_mid = mod:get("mid_color") or { 255, 255, 255, 0 }
+	local c_low = mod:get("low_color") or { 255, 255, 0, 0 }
+
 	if clamped < 0.5 then
-		r = 255
-		g = math.floor(255 * (clamped / 0.5) + 0.5)
+		local t = clamped / 0.5
+		color[2] = math.floor(c_low[2] + (c_mid[2] - c_low[2]) * t + 0.5)
+		color[3] = math.floor(c_low[3] + (c_mid[3] - c_low[3]) * t + 0.5)
+		color[4] = math.floor(c_low[4] + (c_mid[4] - c_low[4]) * t + 0.5)
 	else
-		r = math.floor(255 * (1 - (clamped - 0.5) / 0.5) + 0.5)
-		g = 255
+		local t = (clamped - 0.5) / 0.5
+		color[2] = math.floor(c_mid[2] + (c_high[2] - c_mid[2]) * t + 0.5)
+		color[3] = math.floor(c_mid[3] + (c_high[3] - c_mid[3]) * t + 0.5)
+		color[4] = math.floor(c_mid[4] + (c_high[4] - c_mid[4]) * t + 0.5)
 	end
-	color[2] = r
-	color[3] = g
-	color[4] = 0
 end
 
 local function _get_buff_remaining_time(buff_extension, buff_template_names)
@@ -443,17 +447,19 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 
 		local bar_color = bar_fill.style.rect.color
 		if is_tracking_cooldown then
-			bar_color[1] = 255 * alpha
-			bar_color[2] = 160
-			bar_color[3] = 80
-			bar_color[4] = 220
+			local cd_color = mod:get("cooldown_color") or { 220, 160, 80, 220 }
+			bar_color[1] = cd_color[1] * alpha
+			bar_color[2] = cd_color[2]
+			bar_color[3] = cd_color[3]
+			bar_color[4] = cd_color[4]
 		elseif use_color then
 			_apply_progress_color(frac, bar_color)
 		else
-			bar_color[1] = self._default_bar_color[1] * alpha
-			bar_color[2] = self._default_bar_color[2]
-			bar_color[3] = self._default_bar_color[3]
-			bar_color[4] = self._default_bar_color[4]
+			local custom_color = mod:get("bar_color") or self._default_bar_color
+			bar_color[1] = custom_color[1] * alpha
+			bar_color[2] = custom_color[2]
+			bar_color[3] = custom_color[3]
+			bar_color[4] = custom_color[4]
 		end
 		bar_fill.dirty = true
 		bracket.dirty = true
