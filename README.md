@@ -6,10 +6,10 @@ Standalone mod that adds a clean timer to your HUD that counts down the exact du
 
 **Options:**
 - Display mode [Timer + progress bar, Progress bar only, Timer only]
-- Color Options (Bar, Text, High , Mid , Low Duration, Cooldown)
+- Color Options (Bar, Text, High, Mid, Low Duration, Cooldown)
 - Use progress color (Bar)
 - Use progress color (Text)
-- Show Options (bubble health %%, bracket, ability charges)
+- Show Options (bubble health %, bracket, ability charges)
 - Track cooldown
 - Cooldown display mode [Smooth (start from remaining), Full (show complete cooldown)]
 - Always show charges (even at 1 or 0)
