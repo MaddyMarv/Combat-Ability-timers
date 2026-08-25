@@ -136,7 +136,7 @@ local widgets = {
 						setting_id = "scriers_static_color",
 						display_name = mod:localize("scriers_static_color"),
 						type = "color",
-						default_value = { 255, 140, 20, 200 },
+						default_value = { 255, 255, 70, 150 },
 					},
 					{
 						setting_id = "scriers_use_progress_color",

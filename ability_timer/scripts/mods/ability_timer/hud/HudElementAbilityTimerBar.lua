@@ -482,7 +482,7 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 			if mod:get("scriers_use_progress_color") ~= false then
 				_apply_peril_color(frac, bar_color)
 			else
-				local custom_color = mod:get("scriers_static_color") or { 255, 140, 20, 200 }
+				local custom_color = mod:get("scriers_static_color") or { 255, 255, 70, 150 }
 				bar_color[1] = custom_color[1] * alpha
 				bar_color[2] = custom_color[2]
 				bar_color[3] = custom_color[3]
