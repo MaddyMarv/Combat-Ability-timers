@@ -24,8 +24,8 @@ local ABILITY_GROUPS = {
 				"zealot_combat_ability_attack_speed_increased_duration",
 			},
 		},
-		bolstering_prayer = { setting_id = "zealot_ability_relic", buff_templates = { "zealot_channel_toughness_bonus" } },
-		zealot_invisibility = { setting_id = "zealot_ability_invisibility", buff_templates = { "zealot_invisibility", "zealot_invisibility_increased_duration", "zealot_leaving_stealth_restores_toughness" } },
+		bolstering_prayer = { setting_id = "zealot_ability_relic", buff_templates = { "zealot_channel_toughness_bonus", "zealot_channel_damage", "zealot_channel_toughness_damage_reduction" } },
+		zealot_invisibility = { setting_id = "zealot_ability_invisibility", buff_templates = { "zealot_invisibility", "zealot_invisibility_increased_duration", "zealot_leaving_stealth_restores_toughness", "zealot_stealth_improved_with_block", "zealot_decrease_threat_increase_backstab_damage" } },
 	},
 	psyker = {
 		psyker_shout = { setting_id = "psyker_ability_shout", buff_templates = { "psyker_shout_warp_generation_reduction" } },
@@ -49,7 +49,7 @@ local ABILITY_GROUPS = {
 		broker_stimm_field = { setting_id = "broker_ability_stimm_field", buff_templates = nil },
 	},
 	cryptic = {
-		cryptic_discharge = { setting_id = "cryptic_ability_discharge", buff_templates = nil },
+		cryptic_discharge = { setting_id = "cryptic_ability_discharge", buff_templates = { "cryptic_discharge_weapon_shock_effect", "cryptic_discharge_attack_speed_increase" } },
 		cryptic_precision_stance = { setting_id = "cryptic_ability_precision_stance", buff_templates = { "cryptic_precision_stance_one_charge", "cryptic_precision_stance_two_charges", "cryptic_precision_stance_three_charges" } },
 		cryptic_chordclaw = { setting_id = "cryptic_ability_chordclaw", buff_templates = nil },
 	},
