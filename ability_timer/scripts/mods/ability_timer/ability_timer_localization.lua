@@ -12,13 +12,28 @@ return {
 		en = "Choose what to show for the timer.",
 	},
 	display_mode_both = {
-		en = "Timer + progress bar",
+		en = "Timer and Progress Bar",
 	},
 	display_mode_progress_only = {
-		en = "Progress bar only",
+		en = "Progress Bar Only",
 	},
 	display_mode_timer_only = {
-		en = "Timer only",
+		en = "Timer Only",
+	},
+	group_display_base = {
+		en = "Base Settings",
+	},
+	group_display_colors_static = {
+		en = "Base Colors",
+	},
+	group_display_colors_dynamic = {
+		en = "Dynamic Progress Colors",
+	},
+	group_display_cooldown = {
+		en = "Cooldown Tracking",
+	},
+	group_display_scriers = {
+		en = "Scrier's Gaze Tracking",
 	},
 	use_progress_color = {
 		en = "Use progress color (Bar)",
@@ -41,8 +56,26 @@ return {
 	low_color = {
 		en = "Low Duration Color (Progress)",
 	},
+	use_scriers_gaze_bar = {
+		en = "Use Scrier's Gaze tracking bar",
+	},
+	peril_low_color = {
+		en = "Peril Low Color (0%%)",
+	},
+	peril_high_color = {
+		en = "Peril High Color (100%%)",
+	},
 	show_bubble_health = {
 		en = "Show bubble health %%",
+	},
+	bar_color_cooldown = {
+		en = "Default Cooldown Color",
+	},
+	scriers_use_progress_color = {
+		en = "Use progress color",
+	},
+	scriers_static_color = {
+		en = "Static Peril Color",
 	},
 	track_cooldown = {
 		en = "Track cooldown",

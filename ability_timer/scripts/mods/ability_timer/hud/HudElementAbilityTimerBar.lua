@@ -12,7 +12,7 @@ local COMBAT_ABILITY_TYPE = "combat_ability"
 local ABILITY_GROUPS = {
 	veteran = {
 		volley_fire_stance = { setting_id = "veteran_ability_stance", buff_templates = { "veteran_combat_ability_stance_master", "veteran_combat_ability_stance_master_increased_duration" } },
-		veteran_stealth = { setting_id = "veteran_ability_stealth", buff_templates = { "veteran_invisibility" } },
+		veteran_stealth = { setting_id = "veteran_ability_stealth", buff_templates = { "veteran_invisibility", "veteran_damage_bonus_leaving_invisibility", "veteran_toughness_bonus_leaving_invisibility" } },
 		voice_of_command = { setting_id = "veteran_ability_shout", buff_templates = { "veteran_combat_ability_increase_toughness_to_coherency" } },
 	},
 	zealot = {
@@ -25,7 +25,7 @@ local ABILITY_GROUPS = {
 			},
 		},
 		bolstering_prayer = { setting_id = "zealot_ability_relic", buff_templates = { "zealot_channel_toughness_bonus" } },
-		zealot_invisibility = { setting_id = "zealot_ability_invisibility", buff_templates = { "zealot_invisibility", "zealot_invisibility_increased_duration" } },
+		zealot_invisibility = { setting_id = "zealot_ability_invisibility", buff_templates = { "zealot_invisibility", "zealot_invisibility_increased_duration", "zealot_leaving_stealth_restores_toughness" } },
 	},
 	psyker = {
 		psyker_shout = { setting_id = "psyker_ability_shout", buff_templates = { "psyker_shout_warp_generation_reduction" } },
@@ -170,6 +170,16 @@ local function _apply_progress_color(frac, color)
 	end
 end
 
+local function _apply_peril_color(frac, color)
+	local clamped = math.max(0, math.min(1, frac or 0))
+	local c_low = mod:get("peril_low_color") or { 255, 255, 105, 180 }
+	local c_high = mod:get("peril_high_color") or { 255, 139, 0, 0 }
+
+	color[2] = math.floor(c_low[2] + (c_high[2] - c_low[2]) * clamped + 0.5)
+	color[3] = math.floor(c_low[3] + (c_high[3] - c_low[3]) * clamped + 0.5)
+	color[4] = math.floor(c_low[4] + (c_high[4] - c_low[4]) * clamped + 0.5)
+end
+
 local function _get_buff_remaining_time(buff_extension, buff_template_names)
 	if not buff_extension or not buff_template_names then
 		return nil, nil
@@ -187,12 +197,14 @@ local function _get_buff_remaining_time(buff_extension, buff_template_names)
 		if template_name then
 			for i = 1, #buff_template_names do
 				if template_name == buff_template_names[i] then
-					local progress = buff:duration_progress() or 1
-					local duration = buff:duration() or (template and template.active_duration) or 0
-					local remaining = duration * progress
-					if not best_remaining or remaining > best_remaining then
-						best_remaining = remaining
-						best_duration = duration
+					if not buff._in_invisibility then
+						local progress = buff:duration_progress() or 1
+						local duration = buff:duration() or (template and template.duration) or (template and template.active_duration) or 0
+						local remaining = duration * progress
+						if not best_remaining or remaining > best_remaining then
+							best_remaining = remaining
+							best_duration = duration
+						end
 					end
 					break
 				end
@@ -264,11 +276,16 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 	end
 
 	if mod:get(tracked.setting_id) == false then
-		self:_set_visible(false)
-		return
+		local override_scriers = archetype_name == "psyker" and ability_group == "psyker_overcharge_stance" and mod:get("use_scriers_gaze_bar") ~= false and buff_extension:has_buff_using_buff_template("psyker_overcharge_stance")
+		if not override_scriers then
+			self:_set_visible(false)
+			return
+		end
 	end
 
 	local remaining, duration = _get_buff_remaining_time(buff_extension, tracked.buff_templates)
+	local is_tracking_cooldown = false
+	local is_tracking_peril = false
 
 	if archetype_name == "cryptic" and ability_group == "cryptic_precision_stance" then
 		local has_stance_buff = false
@@ -297,9 +314,18 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 			remaining = total_cooldown / (drain_rate * max_cooldown)
 			duration = max_charges / drain_rate
 		end
+	elseif archetype_name == "psyker" and ability_group == "psyker_overcharge_stance" and mod:get("use_scriers_gaze_bar") ~= false then
+		if buff_extension:has_buff_using_buff_template("psyker_overcharge_stance") then
+			local unit_data_extension = ScriptUnit.has_extension(player_unit, "unit_data_system")
+			local warp_charge_component = unit_data_extension and unit_data_extension:read_component("warp_charge")
+			if warp_charge_component then
+				remaining = (warp_charge_component.current_percentage or 0) * 100
+				duration = 100
+				is_tracking_peril = true
+			end
+		end
 	end
 
-	local is_tracking_cooldown = false
 
 	if not remaining and mod.tracked_deployables then
 		local t_time = Managers.time:time("gameplay")
@@ -447,11 +473,21 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 
 		local bar_color = bar_fill.style.rect.color
 		if is_tracking_cooldown then
-			local cd_color = mod:get("cooldown_color") or { 220, 160, 80, 220 }
+			local cd_color = mod:get("cooldown_color") or { 255, 120, 70, 220 }
 			bar_color[1] = cd_color[1] * alpha
 			bar_color[2] = cd_color[2]
 			bar_color[3] = cd_color[3]
 			bar_color[4] = cd_color[4]
+		elseif is_tracking_peril then
+			if mod:get("scriers_use_progress_color") ~= false then
+				_apply_peril_color(frac, bar_color)
+			else
+				local custom_color = mod:get("scriers_static_color") or { 255, 140, 20, 200 }
+				bar_color[1] = custom_color[1] * alpha
+				bar_color[2] = custom_color[2]
+				bar_color[3] = custom_color[3]
+				bar_color[4] = custom_color[4]
+			end
 		elseif use_color then
 			_apply_progress_color(frac, bar_color)
 		else
