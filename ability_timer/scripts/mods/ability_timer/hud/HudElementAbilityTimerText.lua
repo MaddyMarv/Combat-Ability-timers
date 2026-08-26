@@ -207,6 +207,8 @@ HudElementAbilityTimerText.init = function(self, parent, draw_layer, start_scale
 	local widgets = self._widgets_by_name
 	self._default_text_color = table.clone(widgets.timer_text.style.text.text_color)
 	self._cooldown_start_value = nil
+
+	self:set_scenegraph_position("root", 600 + (mod:get("timer_position_x") or 0), 620 + (mod:get("timer_position_y") or 0), 100)
 end
 
 HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_settings, input_service)
@@ -372,10 +374,6 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 
 	local text_widget = self._widgets_by_name.timer_text
 	local alpha = mod:get("gauge_alpha") or 1.0
-	local pos_x = mod:get("timer_position_x") or 0
-	local pos_y = mod:get("timer_position_y") or 0
-
-	self:set_scenegraph_position("root", 600 + pos_x, 620 + pos_y, 100)
 
 	text_widget.style.text.text_color[1] = 255 * alpha
 
@@ -388,7 +386,13 @@ HudElementAbilityTimerText.update = function(self, dt, t, ui_renderer, render_se
 		text_widget.content.visible = true
 		text_widget.style.text.text_horizontal_alignment = mod:get("timer_text_alignment") or "center"
 		text_widget.style.text.font_size = mod:get("timer_text_size") or 28
-		text_widget.content.text = string.format("%.1f", remaining)
+		
+		if mod:get("show_decimals") ~= false then
+			text_widget.content.text = string.format("%.1f", remaining)
+		else
+			text_widget.content.text = string.format("%d", remaining)
+		end
+		
 		local text_color = text_widget.style.text.text_color
 		if is_tracking_cooldown then
 			local cd_color = mod:get("cooldown_color") or { 255, 120, 70, 220 }

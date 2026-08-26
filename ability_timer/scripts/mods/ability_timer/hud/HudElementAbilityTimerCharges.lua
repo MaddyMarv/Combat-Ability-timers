@@ -160,6 +160,8 @@ HudElementAbilityTimerCharges.init = function(self, parent, draw_layer, start_sc
 
 	local widgets = self._widgets_by_name
 	self._default_text_color = table.clone(widgets.charges_text.style.text.text_color)
+
+	self:set_scenegraph_position("root", 695 + (mod:get("charges_position_x") or 0), 620 + (mod:get("charges_position_y") or 0), 100)
 end
 
 HudElementAbilityTimerCharges.update = function(self, dt, t, ui_renderer, render_settings, input_service)
@@ -234,13 +236,9 @@ HudElementAbilityTimerCharges.update = function(self, dt, t, ui_renderer, render
 
 	local text_widget = self._widgets_by_name.charges_text
 	local alpha = mod:get("gauge_alpha") or 1.0
-	local pos_x = mod:get("charges_position_x") or 0
-	local pos_y = mod:get("charges_position_y") or 0
 	
 	text_widget.style.text.text_horizontal_alignment = mod:get("charges_text_alignment") or "center"
 	text_widget.style.text.font_size = mod:get("charges_text_size") or 28
-
-	self:set_scenegraph_position("root", 695 + pos_x, 620 + pos_y, 100)
 
 	text_widget.style.text.text_color[1] = 255 * alpha
 

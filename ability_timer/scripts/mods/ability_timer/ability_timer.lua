@@ -39,6 +39,33 @@ mod.on_enabled = function()
 	})
 end
 
+mod.on_setting_changed = function(setting_id)
+	local ui_manager = Managers.ui
+	if not ui_manager then return end
+	local hud = ui_manager._hud
+	if not hud or not hud._elements then return end
+
+	local text = hud._elements["HudElementAbilityTimerText"]
+	if text then
+		text:set_scenegraph_position("root", 600 + (mod:get("timer_position_x") or 0), 620 + (mod:get("timer_position_y") or 0), 100)
+	end
+	
+	local bar = hud._elements["HudElementAbilityTimerBar"]
+	if bar then
+		bar:set_scenegraph_position("root", 600 + (mod:get("bar_position_x") or 0), 653.6 + (mod:get("bar_position_y") or 0), 100)
+	end
+	
+	local health = hud._elements["HudElementAbilityTimerHealth"]
+	if health then
+		health:set_scenegraph_position("root", 661.25 + (mod:get("health_position_x") or 0), 620 + (mod:get("health_position_y") or 0), 100)
+	end
+	
+	local charges = hud._elements["HudElementAbilityTimerCharges"]
+	if charges then
+		charges:set_scenegraph_position("root", 695 + (mod:get("charges_position_x") or 0), 620 + (mod:get("charges_position_y") or 0), 100)
+	end
+end
+
 mod.tracked_deployables = {}
 
 local function _add_deployable(unit, name, duration, icon, game_session, game_object_id, max_health)

@@ -23,6 +23,12 @@ local widgets = {
 						},
 					},
 					{
+						setting_id = "show_decimals",
+						display_name = mod:localize("show_decimals"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
 						setting_id = "show_bracket",
 						display_name = mod:localize("show_bracket"),
 						type = "checkbox",

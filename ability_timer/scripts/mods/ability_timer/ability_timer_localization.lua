@@ -20,6 +20,9 @@ return {
 	display_mode_timer_only = {
 		en = "Timer Only",
 	},
+	show_decimals = {
+		en = "Show decimals",
+	},
 	group_display_base = {
 		en = "Base Settings",
 	},

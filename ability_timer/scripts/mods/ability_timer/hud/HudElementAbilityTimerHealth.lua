@@ -134,6 +134,8 @@ HudElementAbilityTimerHealth.init = function(self, parent, draw_layer, start_sca
 
 	local widgets = self._widgets_by_name
 	self._default_health_color = table.clone(widgets.health_text.style.text.text_color)
+	
+	self:set_scenegraph_position("root", 661.25 + (mod:get("health_position_x") or 0), 620 + (mod:get("health_position_y") or 0), 100)
 end
 
 HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_settings, input_service)
@@ -201,13 +203,8 @@ HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_
 	local use_color = mod:get("use_progress_color_text") ~= false
 	local health_widget = self._widgets_by_name.health_text
 	local alpha = mod:get("gauge_alpha") or 1.0
-	local pos_x = mod:get("health_position_x") or 0
-	local pos_y = mod:get("health_position_y") or 0
-	
 	health_widget.style.text.text_horizontal_alignment = mod:get("health_text_alignment") or "center"
 	health_widget.style.text.font_size = mod:get("health_text_size") or 24
-
-	self:set_scenegraph_position("root", 661.25 + pos_x, 620 + pos_y, 100)
 
 	health_widget.style.text.text_color[1] = 255 * alpha
 

@@ -226,6 +226,8 @@ HudElementAbilityTimerBar.init = function(self, parent, draw_layer, start_scale)
 	local widgets = self._widgets_by_name
 	self._default_bar_color = table.clone(widgets.bar_fill.style.rect.color)
 	self._cooldown_start_value = nil
+	
+	self:set_scenegraph_position("root", 600 + (mod:get("bar_position_x") or 0), 653.6 + (mod:get("bar_position_y") or 0), 100)
 end
 
 HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_settings, input_service)
@@ -396,10 +398,6 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 	local orientation = mod:get("comp_orientation") or 0
 	local bar_dir = mod:get("bar_direction") or 1
 	local alpha = mod:get("gauge_alpha") or 1.0
-	local pos_x = mod:get("bar_position_x") or 0
-	local pos_y = mod:get("bar_position_y") or 0
-
-	self:set_scenegraph_position("root", 600 + pos_x, 653.6 + pos_y, 100)
 
 	local full_w = gauge_len
 	local bar_h = gauge_thick
