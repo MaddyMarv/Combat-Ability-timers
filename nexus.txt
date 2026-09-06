@@ -1,0 +1,34 @@
+Standalone mod that adds a clean timer to your HUD that counts down the exact duration of your active ability. Sometimes it's hard to tell when your ability is going to run out in the middle of a horde. It works for all classes and takes the guesswork out of timing your pushes and dodges.
+
+[b]Options:[/b]
+
+[b]Display[/b]
+- Display Mode [Timer + Progress Bar, Progress Bar Only, Timer Only]
+- Show Bracket & Bubble Health (%)
+- Default Bar & Text Colors
+- Use Progress Color Toggles (Bar, Text)
+- High, Mid, Low Duration Colors
+- Track Cooldown
+- Cooldown Display Mode [Smooth (start from remaining), Full (show complete cooldown)]
+- Cooldown Color
+- Scrier's Gaze Bar (Use Gaze Bar, Static/Progress Peril Color, Low & High Peril Colors)
+
+[b]Charges[/b]
+- Show Ability Charges
+- Always Show Charges (even at 1 or 0)
+
+[b]Gauge[/b]
+- Gauge Length & Thickness
+- Gauge Opacity
+- Orientation [Horizontal, Vertical]
+- Bar Direction [Start, End, Center]
+
+[b]Position[/b]
+- X/Y Offset Options (Bar, Timer Text, Charges, Bubble Health)
+- Text Alignment [Left, Center, Right]
+- Text Size
+
+[b]Filters[/b]
+- Track Specific Abilities & Buffs (Voice of Command, Volley Fire, Scrier's Gaze, Point-Blank Barrage, Bull Rush, Chorus of Spiritual Fortitude, Fury of the Faithful, Shroudfield, Telekine Shield, etc...)
+
+[b]Links:[/b] [url=https://github.com/MaddyMarv/Combat-Ability-timers]Source Code[/url] | [url=https://www.nexusmods.com/profile/indicabunny]Nexus Mods Profile[/url] | [url=https://ko-fi.com/indicabunny]Support Me on Ko-fi[/url]
