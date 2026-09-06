@@ -4,6 +4,8 @@
 Standalone mod that adds a clean timer to your HUD that counts down the exact duration of your active ability. Sometimes it's hard to tell when your ability is going to run out in the middle of a horde. It works for all classes and takes the guesswork out of timing your pushes and dodges.
 
 **Options:**
+
+**Display**
 - Display Mode [Timer + Progress Bar, Progress Bar Only, Timer Only]
 - Show Bracket & Bubble Health (%)
 - Default Bar & Text Colors
