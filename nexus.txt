@@ -1,4 +1,4 @@
-Standalone mod that adds a timer to your HUD that counts down the duration of your active ability. Sometimes it's hard to tell when your ability is going to run out in the middle of a horde.
+HUD countdown timer showing the active duration of your combat ability.
 
 [b]Options:[/b]
 

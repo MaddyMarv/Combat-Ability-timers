@@ -1,7 +1,7 @@
 ### [Ability Timer](https://www.nexusmods.com/warhammer40kdarktide/mods/673)
 <img width="835" height="795" alt="image" src="https://github.com/user-attachments/assets/beea4ace-3101-4ebf-9553-3c0a01e5542e" />
 
-Standalone mod that adds a timer to your HUD that counts down the duration of your active ability. Sometimes it's hard to tell when your ability is going to run out in the middle of a horde.
+HUD countdown timer showing the active duration of your combat ability.
 
 **Options:**
 
