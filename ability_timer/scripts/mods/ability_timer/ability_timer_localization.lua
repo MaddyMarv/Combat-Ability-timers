@@ -3,7 +3,7 @@ return {
 		en = "Ability Timer",
 	},
 	mod_description = {
-		en = "Shows the remaining uptime of your combat ability buff.",
+		en = "HUD countdown timer showing the active duration of your combat ability.",
 	},
 	display_mode = {
 		en = "Display mode",
