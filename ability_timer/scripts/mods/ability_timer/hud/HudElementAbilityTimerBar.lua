@@ -75,6 +75,26 @@ local function _is_class_enabled(archetype_name)
 	return false
 end
 
+local function _get_remaining_ability_cooldown(ability_extension, ability_type)
+	if ability_extension:is_ability_resource_regen_paused(ability_type) then
+		return 0
+	end
+
+	return ability_extension:missing_ability_resource_until_next_charge(ability_type) or 0
+end
+
+local function _get_max_ability_cooldown(ability_extension, ability_type)
+	if ability_extension:uses_ability_charges(ability_type) then
+		local max_time = ability_extension:max_regen_time_for_ability_charge(ability_type)
+		if max_time and max_time > 0 then
+			return max_time
+		end
+		return ability_extension:get_ability_resource_cost_per_charge(ability_type)
+	end
+
+	return ability_extension:max_ability_resource(ability_type)
+end
+
 local function _create_scenegraph()
 	local bar_w = 210
 	local bar_h = 15
@@ -299,12 +319,9 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 		end
 
 		if has_stance_buff then
-			local max_cooldown = ability_extension:max_ability_cooldown("combat_ability")
 			local max_charges = ability_extension:max_ability_charges("combat_ability")
-			local remaining_charges = ability_extension:remaining_ability_charges("combat_ability")
-			local remaining_cooldown = ability_extension:remaining_ability_cooldown("combat_ability")
-
-			local total_cooldown = remaining_charges * max_cooldown + (remaining_cooldown > 0 and max_cooldown - remaining_cooldown or 0)
+			local max_cooldown = _get_max_ability_cooldown(ability_extension, "combat_ability")
+			local total_cooldown = ability_extension:remaining_ability_resource("combat_ability")
 
 			local drain_rate = 0.1
 			local talent_settings = require("scripts/settings/talent/talent_settings")
@@ -313,8 +330,10 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 				drain_rate = precision_settings.cooldown_percent_lost_per_second
 			end
 
-			remaining = total_cooldown / (drain_rate * max_cooldown)
-			duration = max_charges / drain_rate
+			if max_cooldown and max_cooldown > 0 then
+				remaining = total_cooldown / (drain_rate * max_cooldown)
+				duration = max_charges / drain_rate
+			end
 		end
 	elseif archetype_name == "psyker" and ability_group == "psyker_overcharge_stance" and mod:get("use_scriers_gaze_bar") ~= false then
 		if buff_extension:has_buff_using_buff_template("psyker_overcharge_stance") then
@@ -351,13 +370,13 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 
 	if not remaining or remaining < 0.05 then
 		if mod:get("track_cooldown") ~= false then
-			local cooldown_remaining = ability_extension:remaining_ability_cooldown("combat_ability")
+			local cooldown_remaining = _get_remaining_ability_cooldown(ability_extension, "combat_ability")
 
 			if cooldown_remaining and cooldown_remaining > 0.05 then
 				local cooldown_mode = mod:get("cooldown_display_mode") or "smooth"
 
 				if cooldown_mode == "full" then
-					local max_cooldown = ability_extension:max_ability_cooldown("combat_ability")
+					local max_cooldown = _get_max_ability_cooldown(ability_extension, "combat_ability")
 					if max_cooldown and max_cooldown > 0 then
 						remaining = cooldown_remaining
 						duration = max_cooldown
