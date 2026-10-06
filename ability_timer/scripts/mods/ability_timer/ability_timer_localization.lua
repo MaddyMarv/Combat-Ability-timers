@@ -23,6 +23,12 @@ return {
 	show_decimals = {
 		en = "Show decimals",
 	},
+	show_native_hud = {
+		en = "Show Ability Timer UI",
+	},
+	show_native_hud_description = {
+		en = "Display the mod's on-screen Hud Elements. (Use this if you want to use HUD Studio to display the Ui elements.)"
+	},
 	group_display_base = {
 		en = "Base Settings",
 	},
@@ -264,69 +270,67 @@ return {
 		en = "Skitarii",
 	},
 
-	veteran_ability_stance = { 
-		en = "Executioner's Stance" 
+	veteran_ability_stance = {
+		en = "Executioner's Stance"
 	},
-	veteran_ability_stealth = { 
-		en = "Infiltrate" 
+	veteran_ability_stealth = {
+		en = "Infiltrate"
 	},
 	veteran_ability_shout = {
-		en = "Voice of Command" 
+		en = "Voice of Command"
 	},
 	zealot_ability_invisibility = {
-		en = "Shroudfield" 
+		en = "Shroudfield"
 	},
 	zealot_ability_dash = {
-		en = "Chastise the Wicked" 
+		en = "Chastise the Wicked"
 	},
 	zealot_ability_relic = {
-		en = "Bolstering Prayer" 
+		en = "Bolstering Prayer"
 	},
 	psyker_ability_overcharge = {
-		en = "Scrier's Gaze" 
+		en = "Scrier's Gaze"
 	},
 	psyker_ability_shout = {
-		en = "Venting Shriek" 
+		en = "Venting Shriek"
 	},
 	psyker_ability_shield = {
-		en = "Telekine Dome" 
+		en = "Telekine Dome"
 	},
 	ogryn_ability_ranged_stance = {
-		en = "Point-Blank Barrage" 
+		en = "Point-Blank Barrage"
 	},
 	ogryn_ability_taunt = {
-		en = "Loyal Protector" 
+		en = "Loyal Protector"
 	},
 	ogryn_ability_charge = {
-		en = "Bull Rush" 
+		en = "Bull Rush"
 	},
 	arbites_ability_stance = {
-		en = "Castigator's Stance" 
+		en = "Castigator's Stance"
 	},
-	arbites_ability_charge = { 
-		en = "Break the Line" 
+	arbites_ability_charge = {
+		en = "Break the Line"
 	},
-	arbites_ability_drone = { 
-		en = "Nuncio / Drone" 
+	arbites_ability_drone = {
+		en = "Nuncio / Drone"
 	},
-	broker_ability_focus = { 
-		en = "Desperado" 
+	broker_ability_focus = {
+		en = "Desperado"
 	},
-	broker_ability_punk_rage = { 
-		en = "Rampage!" 
+	broker_ability_punk_rage = {
+		en = "Rampage"
 	},
-	broker_ability_stimm_field = { 
-		en = "Stimm Supply" 
+	broker_ability_stimm_field = {
+		en = "Stimm Supply"
 	},
-	cryptic_ability_discharge = { 
-		en = "Discharge" 
+	cryptic_ability_discharge = {
+		en = "Discharge"
 	},
 	cryptic_ability_precision_stance = {
-		en = "Adaptive Combat" 
+		en = "Adaptive Combat"
 	},
 	cryptic_ability_chordclaw = {
-		en = "Chordclaw" 
+		en = "Chordclaw"
 	},
 }
-
-

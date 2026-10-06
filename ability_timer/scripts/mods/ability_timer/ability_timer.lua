@@ -1,5 +1,9 @@
 local mod = get_mod("ability_timer")
 
+mod.tracked_deployables = mod.tracked_deployables or {}
+
+mod:io_dofile("ability_timer/scripts/mods/ability_timer/ability_state")
+
 local packages_to_load = {
 	"packages/ui/hud/player_buffs/player_buffs",
 	"packages/ui/hud/player_ability/player_ability",
@@ -46,27 +50,34 @@ mod.on_setting_changed = function(setting_id)
 	if not hud or not hud._elements then return end
 
 	local text = hud._elements["HudElementAbilityTimerText"]
+	local bar = hud._elements["HudElementAbilityTimerBar"]
+	local health = hud._elements["HudElementAbilityTimerHealth"]
+	local charges = hud._elements["HudElementAbilityTimerCharges"]
+
+	if setting_id == "show_native_hud" and not mod:get("show_native_hud") then
+		if text then text:_set_visible(false) end
+		if bar then bar:_set_visible(false) end
+		if health then health:_set_visible(false) end
+		if charges then charges:_set_visible(false) end
+		return
+	end
+
 	if text then
 		text:set_scenegraph_position("root", 600 + (mod:get("timer_position_x") or 0), 620 + (mod:get("timer_position_y") or 0), 100)
 	end
 	
-	local bar = hud._elements["HudElementAbilityTimerBar"]
 	if bar then
 		bar:set_scenegraph_position("root", 600 + (mod:get("bar_position_x") or 0), 653.6 + (mod:get("bar_position_y") or 0), 100)
 	end
 	
-	local health = hud._elements["HudElementAbilityTimerHealth"]
 	if health then
 		health:set_scenegraph_position("root", 661.25 + (mod:get("health_position_x") or 0), 620 + (mod:get("health_position_y") or 0), 100)
 	end
 	
-	local charges = hud._elements["HudElementAbilityTimerCharges"]
 	if charges then
 		charges:set_scenegraph_position("root", 695 + (mod:get("charges_position_x") or 0), 620 + (mod:get("charges_position_y") or 0), 100)
 	end
 end
-
-mod.tracked_deployables = {}
 
 local function _add_deployable(unit, name, duration, icon, game_session, game_object_id, max_health)
     if not unit then return end
@@ -170,15 +181,15 @@ mod:hook_safe("UnitSpawnerManager", "_remove_network_unit", function(self, unit)
 end)
 
 mod:hook_safe("ProximityBrokerStimmField", "init", function(self, context, init_data, owner_unit)
-    local is_owner = owner_unit == Managers.player:local_player(1).player_unit
-    if is_owner then
+    local local_player = Managers.player and Managers.player:local_player(1)
+    if local_player and owner_unit == local_player.player_unit then
         _add_deployable(self._unit, "broker_stimm_field", self._life_time, "content/ui/textures/icons/buffs/hud/broker/broker_stimm_field")
     end
 end)
 
 mod:hook_safe("ProximityAreaBuffDrone", "init", function(self, context, init_data, owner_unit)
-    local is_owner = owner_unit == Managers.player:local_player(1).player_unit
-    if is_owner then
+    local local_player = Managers.player and Managers.player:local_player(1)
+    if local_player and owner_unit == local_player.player_unit then
         _add_deployable(self._unit, "adamant_drone", self._life_time, "content/ui/textures/icons/abilities/hud/adamant/adamant_ability_area_buff_drone")
     end
 end)
@@ -219,5 +230,17 @@ mod:hook_safe("PsykerForceFieldUnitExtension", "fixed_update", function(self, un
     deployable.last_poll_time = t
 end)
 
+mod.on_all_mods_loaded = function()
+	local hud_studio = get_mod("hud_studio")
+	if not hud_studio then return end
 
-
+	hud_studio.register_blocks(mod, {
+		author = "IndicaBunny",
+		blocks = {
+			"scripts/mods/ability_timer/blocks/at_timer",
+			"scripts/mods/ability_timer/blocks/at_bar",
+			"scripts/mods/ability_timer/blocks/at_charges",
+			"scripts/mods/ability_timer/blocks/at_bubble_health",
+		},
+	})
+end

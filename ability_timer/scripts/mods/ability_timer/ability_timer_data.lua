@@ -12,6 +12,12 @@ local widgets = {
 				type = "group",
 				sub_widgets = {
 					{
+						setting_id = "show_native_hud",
+						display_name = mod:localize("show_native_hud"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
 						setting_id = "display_mode",
 						type = "dropdown",
 						default_value = "both",
