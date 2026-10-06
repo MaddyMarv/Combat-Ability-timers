@@ -239,6 +239,7 @@ mod.on_all_mods_loaded = function()
 		blocks = {
 			"scripts/mods/ability_timer/blocks/at_timer",
 			"scripts/mods/ability_timer/blocks/at_bar",
+			"scripts/mods/ability_timer/blocks/at_bracket",
 			"scripts/mods/ability_timer/blocks/at_charges",
 			"scripts/mods/ability_timer/blocks/at_bubble_health",
 		},

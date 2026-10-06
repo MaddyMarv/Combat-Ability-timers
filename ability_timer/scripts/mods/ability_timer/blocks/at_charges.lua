@@ -70,6 +70,6 @@ visible = s and s.charges_visible or false",
 	requires = {
 		"ability_timer",
 	},
-	summary = "Text display showing available combat ability charges with dynamic progress colors. Requires Ability Timer.",
+	summary = "Shows your ready ability charges.",
 	version = 2,
 }

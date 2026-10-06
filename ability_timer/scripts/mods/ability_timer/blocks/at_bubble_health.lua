@@ -70,6 +70,6 @@ visible = s and s.bubble_visible or false",
 	requires = {
 		"ability_timer",
 	},
-	summary = "Percentage display showing current Telekine Dome shield health for Psykers. Requires Ability Timer.",
+	summary = "Shield health for the Psyker dome.",
 	version = 2,
 }

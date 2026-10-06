@@ -72,6 +72,6 @@ visible = s and s.timer_visible or false",
 	requires = {
 		"ability_timer",
 	},
-	summary = "Progress bar displaying active duration or cooldown of your combat ability with dynamic progress colors. Requires Ability Timer.",
+	summary = "Progress bar for your ability duration and cooldown.",
 	version = 2,
 }
