@@ -172,7 +172,7 @@ local widgets = {
 						setting_id = "lock_charge_slots",
 						display_name = mod:localize("lock_charge_slots"),
 						type = "checkbox",
-						default_value = true,
+						default_value = false,
 					},
 					{
 						setting_id = "consume_order",

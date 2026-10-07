@@ -221,7 +221,7 @@ local function _get_active_deployables()
 	end)
 
 	local num_segs = state.segments or 2
-	local lock_slots = mod:get("lock_charge_slots") ~= false
+	local lock_slots = mod:get("lock_charge_slots") == true
 	local ltr = mod:get("consume_order") == "left_to_right"
 
 	if not lock_slots then
@@ -516,7 +516,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		end
 
 		local last_consumed_slot = nil
-		if mod:get("lock_charge_slots") ~= false then
+		if mod:get("lock_charge_slots") then
 			local ltr = mod:get("consume_order") == "left_to_right"
 			if not last_known_max_charges or last_known_max_charges ~= num_segs then
 				last_known_max_charges = num_segs
@@ -623,7 +623,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 
 		if has_buff then
 			local b_slot
-			if mod:get("lock_charge_slots") ~= false then
+			if mod:get("lock_charge_slots") then
 				if last_consumed_slot and not active_by_slot[last_consumed_slot] then
 					current_buff_slot = last_consumed_slot
 					b_slot = current_buff_slot
@@ -686,7 +686,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		end
 
 		local cd_slot_used = nil
-		if mod:get("lock_charge_slots") ~= false then
+		if mod:get("lock_charge_slots") then
 			cd_slot_used = fixed_active_cd_slot
 			local s_prog = 0
 			if fixed_active_cd_slot then
