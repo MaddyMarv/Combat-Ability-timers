@@ -186,7 +186,7 @@ return {
 		en = "Independent Charge Tracking",
 	},
 	independent_charge_tracking_description = {
-		en = "Tracks each ability charge and deployable (walls, domes) in its own dedicated segment, seamlessly flowing from active duration into cooldown recharge.",
+		en = "Tracks each ability charge and deployable (walls, domes) in its own dedicated segment.",
 	},
 	segment_gap = {
 		en = "Segment Gap",
