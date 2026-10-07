@@ -515,83 +515,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 			end
 		end
 
-		if has_buff then
-			local b_slot
-			if mod:get("lock_charge_slots") ~= false then
-				if not current_buff_slot or not active_by_slot[current_buff_slot] then
-					local ltr = mod:get("consume_order") == "left_to_right"
-					if ltr then
-						if charges >= 1 then
-							b_slot = 1
-							while b_slot < num_segs and active_by_slot[b_slot] do
-								b_slot = b_slot + 1
-							end
-						else
-							b_slot = num_segs
-							while b_slot > 1 and active_by_slot[b_slot] do
-								b_slot = b_slot - 1
-							end
-						end
-					else
-						if charges >= 1 then
-							b_slot = num_segs
-							while b_slot > 1 and active_by_slot[b_slot] do
-								b_slot = b_slot - 1
-							end
-						else
-							b_slot = 1
-							while b_slot < num_segs and active_by_slot[b_slot] do
-								b_slot = b_slot + 1
-							end
-						end
-					end
-					current_buff_slot = b_slot
-				else
-					b_slot = current_buff_slot
-				end
-			else
-				b_slot = (num_segs > 1 and charges >= 1) and num_segs or 1
-			end
-
-			if not active_by_slot[b_slot] then
-				active_by_slot[b_slot] = {
-					remaining = buff_remaining,
-					duration = buff_duration,
-					fraction = math.clamp(buff_remaining / buff_duration, 0, 1),
-				}
-			end
-		else
-			current_buff_slot = nil
-		end
-
-		local t = (Managers.time and Managers.time:has_timer("gameplay")) and Managers.time:time("gameplay") or 0
-		local any_active = false
-		for s, d in pairs(active_by_slot) do
-			slot_last_active_time[s] = t
-			slot_cooldown_start[s] = nil
-		end
-
-		for i = 1, num_segs do
-			if active_by_slot[i] then
-				any_active = true
-				local f = active_by_slot[i].fraction
-				seg_fractions[i] = f
-				seg_colors[i] = (use_scriers and _get_peril_color(f)) or _get_active_color(f)
-				if not display_remaining or active_by_slot[i].remaining < display_remaining then
-					display_remaining = active_by_slot[i].remaining
-					display_duration = active_by_slot[i].duration
-				end
-			end
-		end
-
-		if any_active then
-			mode = (use_scriers and "peril") or "active"
-			state.timer_visible = true
-			cooldown_start_value = nil
-			charge_cooldown_start = nil
-		end
-
-		local cd_slot_used = nil
+		local last_consumed_slot = nil
 		if mod:get("lock_charge_slots") ~= false then
 			local ltr = mod:get("consume_order") == "left_to_right"
 			if not last_known_max_charges or last_known_max_charges ~= num_segs then
@@ -631,6 +555,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 							end
 						end
 						if consumed_slot then
+							last_consumed_slot = consumed_slot
 							fixed_ready_slots[consumed_slot] = false
 							if not fixed_active_cd_slot then
 								fixed_active_cd_slot = consumed_slot
@@ -694,7 +619,74 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 				end
 			end
 			last_known_charges = charges
+		end
 
+		if has_buff then
+			local b_slot
+			if mod:get("lock_charge_slots") ~= false then
+				if last_consumed_slot and not active_by_slot[last_consumed_slot] then
+					current_buff_slot = last_consumed_slot
+					b_slot = current_buff_slot
+				elseif current_buff_slot and not active_by_slot[current_buff_slot] then
+					b_slot = current_buff_slot
+				else
+					local ltr = mod:get("consume_order") == "left_to_right"
+					local start_s = ltr and 1 or num_segs
+					local end_s = ltr and num_segs or 1
+					local step_s = ltr and 1 or -1
+					for s = start_s, end_s, step_s do
+						if not fixed_ready_slots[s] and not active_by_slot[s] then
+							b_slot = s
+							break
+						end
+					end
+					b_slot = b_slot or (ltr and 1 or num_segs)
+					current_buff_slot = b_slot
+				end
+			else
+				b_slot = (num_segs > 1 and charges >= 1) and num_segs or 1
+			end
+
+			if not active_by_slot[b_slot] then
+				active_by_slot[b_slot] = {
+					remaining = buff_remaining,
+					duration = buff_duration,
+					fraction = math.clamp(buff_remaining / buff_duration, 0, 1),
+				}
+			end
+		else
+			current_buff_slot = nil
+		end
+
+		local t = (Managers.time and Managers.time:has_timer("gameplay")) and Managers.time:time("gameplay") or 0
+		local any_active = false
+		for s, d in pairs(active_by_slot) do
+			slot_last_active_time[s] = t
+			slot_cooldown_start[s] = nil
+		end
+
+		for i = 1, num_segs do
+			if active_by_slot[i] then
+				any_active = true
+				local f = active_by_slot[i].fraction
+				seg_fractions[i] = f
+				seg_colors[i] = (use_scriers and _get_peril_color(f)) or _get_active_color(f)
+				if not display_remaining or active_by_slot[i].remaining < display_remaining then
+					display_remaining = active_by_slot[i].remaining
+					display_duration = active_by_slot[i].duration
+				end
+			end
+		end
+
+		if any_active then
+			mode = (use_scriers and "peril") or "active"
+			state.timer_visible = true
+			cooldown_start_value = nil
+			charge_cooldown_start = nil
+		end
+
+		local cd_slot_used = nil
+		if mod:get("lock_charge_slots") ~= false then
 			cd_slot_used = fixed_active_cd_slot
 			local s_prog = 0
 			if fixed_active_cd_slot then
@@ -813,6 +805,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		end
 
 	elseif (num_active > 0 or has_buff) then
+		current_buff_slot = nil
 		cooldown_start_value = nil
 		charge_cooldown_start = nil
 		mode = (use_scriers and "peril") or "active"
