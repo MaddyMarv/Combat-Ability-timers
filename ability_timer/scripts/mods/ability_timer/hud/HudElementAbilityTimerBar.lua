@@ -186,7 +186,7 @@ HudElementAbilityTimerBar.update = function(self, dt, t, ui_renderer, render_set
 		local seg_len = math.max(1, math.floor((full_w - total_gaps) / num_segments))
 		local src_color = ability_state.bar_color
 		local charges = ability_state.charges or 0
-		local ready_color = mod:get("ready_charge_color") or { 255, 17, 90, 239 }
+		local ready_color = mod:get("ready_charge_color") or { 255, 80, 145, 255 }
 
 		local seg_fractions = ability_state.segment_fractions
 		for i = 1, num_segments do

@@ -54,10 +54,10 @@ local CLASS_SETTINGS = {
 	cryptic = "show_cryptic",
 }
 
-local bar_color = { 255, 17, 90, 239 }
-local text_color = { 255, 17, 90, 239 }
-local charges_color = { 255, 17, 90, 239 }
-local bubble_color = { 255, 17, 90, 239 }
+local bar_color = { 255, 80, 145, 255 }
+local text_color = { 255, 80, 145, 255 }
+local charges_color = { 255, 80, 145, 255 }
+local bubble_color = { 255, 80, 145, 255 }
 
 local state = {
 	bar_visible = false,
@@ -323,17 +323,17 @@ local function _resolve_charges(ability_extension)
 		local src = (frac == 1 and c_high) or (frac == 0 and c_low) or c_mid
 		charges_color[2], charges_color[3], charges_color[4] = src[2], src[3], src[4]
 	else
-		local custom = mod:get("text_color") or { 255, 17, 90, 239 }
+		local custom = mod:get("text_color") or { 255, 80, 145, 255 }
 		charges_color[2], charges_color[3], charges_color[4] = custom[2], custom[3], custom[4]
 	end
 end
 
 local function _get_active_color(frac)
-	local c = { 255, 17, 90, 239 }
+	local c = { 255, 80, 145, 255 }
 	if mod:get("use_progress_color") ~= false then
 		_apply_progress_color(frac, c)
 	else
-		local custom = mod:get("bar_color") or { 255, 17, 90, 239 }
+		local custom = mod:get("bar_color") or { 255, 80, 145, 255 }
 		c[2], c[3], c[4] = custom[2], custom[3], custom[4]
 	end
 	return c
@@ -443,7 +443,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		state.segments = num_segs
 	end
 
-	local ready_color = mod:get("ready_charge_color") or { 255, 17, 90, 239 }
+	local ready_color = mod:get("ready_charge_color") or { 255, 80, 145, 255 }
 	local cd_color = mod:get("cooldown_color") or { 255, 120, 70, 255 }
 
 	local seg_fractions = {}
