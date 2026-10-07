@@ -54,7 +54,8 @@ local CLASS_SETTINGS = {
 	cryptic = "show_cryptic",
 }
 
-local bar_color = { 255, 80, 145, 255 }
+local bar_color = { 255, 80, 145, 255, _is_at_bar = true }
+bar_color._is_at_bar = true
 local text_color = { 255, 80, 145, 255 }
 local charges_color = { 255, 80, 145, 255 }
 local bubble_color = { 255, 80, 145, 255 }
@@ -88,6 +89,12 @@ local cooldown_start_value = nil
 local charge_cooldown_start = nil
 local slot_last_active_time = {}
 local slot_cooldown_start = {}
+local fixed_active_cd_slot = nil
+local fixed_queued_cd_slots = {}
+local fixed_ready_slots = {}
+local last_known_charges = nil
+local last_known_max_charges = nil
+local current_buff_slot = nil
 
 local function _apply_progress_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
@@ -462,7 +469,43 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		end
 
 		if has_buff then
-			local b_slot = (num_segs > 1 and charges >= 1) and num_segs or 1
+			local b_slot
+			if mod:get("lock_charge_slots") ~= false then
+				if not current_buff_slot or not active_by_slot[current_buff_slot] then
+					local ltr = mod:get("consume_order") == "left_to_right"
+					if ltr then
+						if charges >= 1 then
+							b_slot = 1
+							while b_slot < num_segs and active_by_slot[b_slot] do
+								b_slot = b_slot + 1
+							end
+						else
+							b_slot = num_segs
+							while b_slot > 1 and active_by_slot[b_slot] do
+								b_slot = b_slot - 1
+							end
+						end
+					else
+						if charges >= 1 then
+							b_slot = num_segs
+							while b_slot > 1 and active_by_slot[b_slot] do
+								b_slot = b_slot - 1
+							end
+						else
+							b_slot = 1
+							while b_slot < num_segs and active_by_slot[b_slot] do
+								b_slot = b_slot + 1
+							end
+						end
+					end
+					current_buff_slot = b_slot
+				else
+					b_slot = current_buff_slot
+				end
+			else
+				b_slot = (num_segs > 1 and charges >= 1) and num_segs or 1
+			end
+
 			if not active_by_slot[b_slot] then
 				active_by_slot[b_slot] = {
 					remaining = buff_remaining,
@@ -470,6 +513,8 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 					fraction = math.clamp(buff_remaining / buff_duration, 0, 1),
 				}
 			end
+		else
+			current_buff_slot = nil
 		end
 
 		local t = (Managers.time and Managers.time:has_timer("gameplay")) and Managers.time:time("gameplay") or 0
@@ -499,89 +544,224 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 			charge_cooldown_start = nil
 		end
 
-		local free_slots = {}
-		for i = 1, num_segs do
-			if not active_by_slot[i] then
-				free_slots[#free_slots + 1] = i
+		local cd_slot_used = nil
+		if mod:get("lock_charge_slots") ~= false then
+			local ltr = mod:get("consume_order") == "left_to_right"
+			if not last_known_max_charges or last_known_max_charges ~= num_segs then
+				last_known_max_charges = num_segs
+				last_known_charges = charges
+				fixed_active_cd_slot = nil
+				fixed_queued_cd_slots = {}
+				fixed_ready_slots = {}
+				for s = 1, num_segs do
+					fixed_ready_slots[s] = ltr and (s > (num_segs - charges)) or (s <= charges)
+				end
+				if charges < num_segs then
+					if ltr then
+						fixed_active_cd_slot = 1
+						for s = 2, num_segs - charges do
+							table.insert(fixed_queued_cd_slots, s)
+						end
+					else
+						fixed_active_cd_slot = num_segs
+						for s = num_segs - 1, charges + 1, -1 do
+							table.insert(fixed_queued_cd_slots, s)
+						end
+					end
+				end
+			else
+				if last_known_charges and charges < last_known_charges then
+					local diff = last_known_charges - charges
+					for _ = 1, diff do
+						local consumed_slot = nil
+						local start_s = ltr and 1 or num_segs
+						local end_s = ltr and num_segs or 1
+						local step_s = ltr and 1 or -1
+						for s = start_s, end_s, step_s do
+							if fixed_ready_slots[s] then
+								consumed_slot = s
+								break
+							end
+						end
+						if consumed_slot then
+							fixed_ready_slots[consumed_slot] = false
+							if not fixed_active_cd_slot then
+								fixed_active_cd_slot = consumed_slot
+							else
+								table.insert(fixed_queued_cd_slots, consumed_slot)
+							end
+						end
+					end
+				elseif last_known_charges and charges > last_known_charges then
+					local diff = charges - last_known_charges
+					for _ = 1, diff do
+						if fixed_active_cd_slot then
+							fixed_ready_slots[fixed_active_cd_slot] = true
+						end
+						fixed_active_cd_slot = table.remove(fixed_queued_cd_slots, 1)
+					end
+				end
+
+				if charges == num_segs then
+					fixed_active_cd_slot = nil
+					fixed_queued_cd_slots = {}
+					for s = 1, num_segs do
+						fixed_ready_slots[s] = true
+					end
+				elseif not fixed_active_cd_slot and charges < num_segs then
+					local start_s = ltr and 1 or num_segs
+					local end_s = ltr and num_segs or 1
+					local step_s = ltr and 1 or -1
+					for s = start_s, end_s, step_s do
+						if not fixed_ready_slots[s] then
+							fixed_active_cd_slot = s
+							break
+						end
+					end
+				end
+
+				local ready_count = 0
+				for s = 1, num_segs do
+					if fixed_ready_slots[s] then
+						ready_count = ready_count + 1
+					end
+				end
+				if ready_count ~= charges then
+					fixed_ready_slots = {}
+					local assigned = 0
+					local start_s = ltr and num_segs or 1
+					local end_s = ltr and 1 or num_segs
+					local step_s = ltr and -1 or 1
+					for s = start_s, end_s, step_s do
+						if s ~= fixed_active_cd_slot and assigned < charges then
+							fixed_ready_slots[s] = true
+							assigned = assigned + 1
+						else
+							fixed_ready_slots[s] = false
+						end
+					end
+					if assigned < charges and fixed_active_cd_slot then
+						fixed_ready_slots[fixed_active_cd_slot] = true
+						fixed_active_cd_slot = nil
+					end
+				end
+			end
+			last_known_charges = charges
+
+			cd_slot_used = fixed_active_cd_slot
+			local s_prog = 0
+			if fixed_active_cd_slot then
+				if is_smooth then
+					if not slot_cooldown_start[fixed_active_cd_slot] or missing_charge > slot_cooldown_start[fixed_active_cd_slot] then
+						slot_cooldown_start[fixed_active_cd_slot] = missing_charge
+					end
+					s_prog = (slot_cooldown_start[fixed_active_cd_slot] > 0) and math.clamp(1 - (missing_charge / slot_cooldown_start[fixed_active_cd_slot]), 0, 1) or 0
+				else
+					slot_cooldown_start[fixed_active_cd_slot] = nil
+					s_prog = (max_charge_cd > 0) and math.clamp(1 - (missing_charge / max_charge_cd), 0, 1) or math.clamp(charge_progress, 0, 1)
+				end
+			end
+
+			for i = 1, num_segs do
+				if not active_by_slot[i] then
+					if fixed_ready_slots[i] then
+						slot_cooldown_start[i] = nil
+						seg_fractions[i] = 1.0
+						seg_colors[i] = { ready_color[1], ready_color[2], ready_color[3], ready_color[4] }
+					elseif has_cd and i == fixed_active_cd_slot then
+						seg_fractions[i] = s_prog
+						seg_colors[i] = _get_cooldown_color(s_prog)
+					else
+						slot_cooldown_start[i] = nil
+						seg_fractions[i] = 0.0
+						seg_colors[i] = _get_cooldown_color(0.0)
+					end
+				end
+			end
+		else
+			local free_slots = {}
+			for i = 1, num_segs do
+				if not active_by_slot[i] then
+					free_slots[#free_slots + 1] = i
+				end
+			end
+
+			if #free_slots > 0 then
+				local ready_to_give = math.clamp(charges, 0, #free_slots)
+				local ready_slot_map = {}
+
+				for k = 1, ready_to_give do
+					ready_slot_map[free_slots[k]] = true
+				end
+
+				local cd_given = false
+				for _, slot_idx in ipairs(free_slots) do
+					if ready_slot_map[slot_idx] then
+						slot_cooldown_start[slot_idx] = nil
+						seg_fractions[slot_idx] = 1.0
+						seg_colors[slot_idx] = { ready_color[1], ready_color[2], ready_color[3], ready_color[4] }
+					elseif has_cd and not cd_given then
+						cd_given = true
+						cd_slot_used = slot_idx
+						local s_prog
+						if is_smooth then
+							if not slot_cooldown_start[slot_idx] or missing_charge > slot_cooldown_start[slot_idx] then
+								slot_cooldown_start[slot_idx] = missing_charge
+							end
+							s_prog = (slot_cooldown_start[slot_idx] > 0) and math.clamp(1 - (missing_charge / slot_cooldown_start[slot_idx]), 0, 1) or 0
+						else
+							slot_cooldown_start[slot_idx] = nil
+							s_prog = (max_charge_cd > 0) and math.clamp(1 - (missing_charge / max_charge_cd), 0, 1) or math.clamp(charge_progress, 0, 1)
+						end
+						seg_fractions[slot_idx] = s_prog
+						seg_colors[slot_idx] = _get_cooldown_color(s_prog)
+					else
+						slot_cooldown_start[slot_idx] = nil
+						seg_fractions[slot_idx] = 0.0
+						seg_colors[slot_idx] = _get_cooldown_color(0.0)
+					end
+				end
 			end
 		end
 
-		if #free_slots > 0 then
-			local ready_to_give = math.clamp(charges, 0, #free_slots)
-			local ready_slot_map = {}
-
-			for k = 1, ready_to_give do
-				ready_slot_map[free_slots[k]] = true
+		if not any_active then
+			if charges == max_charges then
+				slot_last_active_time = {}
+				slot_cooldown_start = {}
+				cooldown_start_value = nil
+				charge_cooldown_start = nil
 			end
 
-			local cd_given = false
-			local cd_slot_used = nil
-			for _, slot_idx in ipairs(free_slots) do
-				if ready_slot_map[slot_idx] then
-					slot_cooldown_start[slot_idx] = nil
-					seg_fractions[slot_idx] = 1.0
-					seg_colors[slot_idx] = { ready_color[1], ready_color[2], ready_color[3], ready_color[4] }
-				elseif has_cd and not cd_given then
-					cd_given = true
-					cd_slot_used = slot_idx
-					local s_prog
+			if has_cd then
+				mode = "cooldown"
+				local target_timer = mod:get("cooldown_target_timer") or "next_charge"
+				if target_timer == "until_full" and uses_charges and max_charges > 1 then
+					display_remaining = missing_total
 					if is_smooth then
-						if not slot_cooldown_start[slot_idx] or missing_charge > slot_cooldown_start[slot_idx] then
-							slot_cooldown_start[slot_idx] = missing_charge
+						if not cooldown_start_value or missing_total > cooldown_start_value then
+							cooldown_start_value = missing_total
 						end
-						s_prog = (slot_cooldown_start[slot_idx] > 0) and math.clamp(1 - (missing_charge / slot_cooldown_start[slot_idx]), 0, 1) or 0
+						display_duration = cooldown_start_value
 					else
-						slot_cooldown_start[slot_idx] = nil
-						s_prog = (max_charge_cd > 0) and math.clamp(1 - (missing_charge / max_charge_cd), 0, 1) or math.clamp(charge_progress, 0, 1)
+						cooldown_start_value = nil
+						display_duration = max_charge_cd * max_charges
 					end
-					seg_fractions[slot_idx] = s_prog
-					seg_colors[slot_idx] = _get_cooldown_color(s_prog)
 				else
-					slot_cooldown_start[slot_idx] = nil
-					seg_fractions[slot_idx] = 0.0
-					seg_colors[slot_idx] = _get_cooldown_color(0.0)
-				end
-			end
-
-			if not any_active then
-				if charges == max_charges then
-					slot_last_active_time = {}
-					slot_cooldown_start = {}
-					cooldown_start_value = nil
-					charge_cooldown_start = nil
-				end
-
-				if has_cd then
-					mode = "cooldown"
-					local target_timer = mod:get("cooldown_target_timer") or "next_charge"
-					if target_timer == "until_full" and uses_charges and max_charges > 1 then
-						display_remaining = missing_total
-						if is_smooth then
-							if not cooldown_start_value or missing_total > cooldown_start_value then
-								cooldown_start_value = missing_total
-							end
-							display_duration = cooldown_start_value
-						else
-							cooldown_start_value = nil
-							display_duration = max_charge_cd * max_charges
-						end
+					display_remaining = missing_charge
+					local cd_ref = (cd_slot_used and slot_cooldown_start[cd_slot_used]) or missing_charge
+					if is_smooth then
+						display_duration = cd_ref
 					else
-						display_remaining = missing_charge
-						local cd_ref = (cd_slot_used and slot_cooldown_start[cd_slot_used]) or missing_charge
-						if is_smooth then
-							display_duration = cd_ref
-						else
-							display_duration = max_charge_cd
-						end
+						display_duration = max_charge_cd
 					end
-					state.timer_visible = true
-				elseif charges == max_charges and mod:get("always_show_bar") then
-					mode = "ready"
-				else
-					cooldown_start_value = nil
-					charge_cooldown_start = nil
-					slot_cooldown_start = {}
 				end
+				state.timer_visible = true
+			elseif charges == max_charges and mod:get("always_show_bar") then
+				mode = "ready"
+			else
+				cooldown_start_value = nil
+				charge_cooldown_start = nil
+				slot_cooldown_start = {}
 			end
 		end
 
@@ -703,6 +883,13 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 		state.timer_text = string.format(mod:get("show_decimals") ~= false and "%.1f" or "%d", state.remaining)
 	end
 
+	state.cooldown_remaining = missing_charge or 0
+	state.cooldown_duration = max_charge_cd or 0
+	state.cooldown_fraction = (max_charge_cd and max_charge_cd > 0) and math.clamp(1 - (missing_charge / max_charge_cd), 0, 1) or charge_progress
+	state.active_remaining = (buff_remaining and buff_remaining >= MIN_TIME and buff_remaining) or (active_deployables and active_deployables[1] and active_deployables[1].remaining) or 0
+	state.active_duration = (buff_duration and buff_duration > 0 and buff_duration) or (active_deployables and active_deployables[1] and active_deployables[1].duration) or 0
+	state.active_fraction = (state.active_duration > 0) and math.clamp(state.active_remaining / state.active_duration, 0, 1) or 0
+
 	local total_frac = 0
 	for i = 1, num_segs do
 		total_frac = total_frac + (seg_fractions[i] or 0)
@@ -712,6 +899,7 @@ local function _resolve_timer(player_unit, archetype_name, ability_group, tracke
 	state.segment_colors = seg_colors
 	bar_color._at_segment_fractions = seg_fractions
 	bar_color._at_segment_colors = seg_colors
+	bar_color._is_at_bar = true
 
 	if seg_colors[1] then
 		bar_color[2], bar_color[3], bar_color[4] = seg_colors[1][2], seg_colors[1][3], seg_colors[1][4]
@@ -782,7 +970,15 @@ local function _resolve()
 
 	local player = Managers.player:local_player(1)
 	local player_unit = player and player.player_unit
-	if not player_unit or not ALIVE[player_unit] then return end
+	if not player_unit or not ALIVE[player_unit] then
+		fixed_active_cd_slot = nil
+		fixed_queued_cd_slots = {}
+		fixed_ready_slots = {}
+		last_known_charges = nil
+		last_known_max_charges = nil
+		current_buff_slot = nil
+		return
+	end
 
 	local ability_extension = ScriptUnit.has_extension(player_unit, "ability_system")
 	if not ability_extension then return end
@@ -844,6 +1040,7 @@ local function _resolve()
 		state.segment_colors = s_cols
 		bar_color._at_segment_fractions = s_fracs
 		bar_color._at_segment_colors = s_cols
+		bar_color._is_at_bar = true
 	end
 
 	local total_notches = tonumber(mod:get("bar_notches")) or 0

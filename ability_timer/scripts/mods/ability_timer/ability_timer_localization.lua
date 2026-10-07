@@ -188,6 +188,24 @@ return {
 	independent_charge_tracking_description = {
 		en = "Tracks each ability charge and deployable (walls, domes) in its own dedicated segment.",
 	},
+	lock_charge_slots = {
+		en = "Fixed Charge Slots",
+	},
+	lock_charge_slots_description = {
+		en = "Keeps each ability charge in its dedicated segment so duration and cooldown never jump between slots.",
+	},
+	consume_order = {
+		en = "Consume Order",
+	},
+	consume_order_description = {
+		en = "Order in which charge segments are consumed. Right to Left anchors remaining charges to the left.",
+	},
+	consume_order_right_to_left = {
+		en = "Right to Left",
+	},
+	consume_order_left_to_right = {
+		en = "Left to Right",
+	},
 	segment_gap = {
 		en = "Segment Gap",
 	},

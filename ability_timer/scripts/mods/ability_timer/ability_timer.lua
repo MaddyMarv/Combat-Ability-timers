@@ -288,8 +288,15 @@ mod.on_all_mods_loaded = function()
 	if Straight and DrawCalls then
 		mod:hook(Straight, "draw", function(func, ctx, ...)
 			local at_state = mod.get_ability_state()
-			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
-			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			local fill_c = ctx.fill_color
+			local is_at_bar = fill_c and (fill_c._is_at_bar or fill_c._at_segment_colors ~= nil or (at_state and fill_c == at_state.bar_color))
+
+			if not is_at_bar then
+				return func(ctx, ...)
+			end
+
+			local seg_colors = fill_c._at_segment_colors
+			local seg_fractions = fill_c._at_segment_fractions
 			local notches_per_seg = at_state and at_state.notches_per_seg or 0
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
@@ -418,36 +425,52 @@ mod.on_all_mods_loaded = function()
 				end
 			end
 
-			if notches_per_seg > 0 then
+			if notches_per_seg > 0 and (at_state and (at_state.bar_visible or at_state.timer_visible)) then
 				local notch_c = at_state.notch_color or { 255, 88, 99, 80 }
 				local notch_alpha = (ctx.fill_color and ctx.fill_color[1] or 255) / 255
-				local notch_color = { (notch_c[1] or 255) * notch_alpha, notch_c[2], notch_c[3], notch_c[4] }
+				if notch_alpha > 0 then
+					local notch_color = { (notch_c[1] or 255) * notch_alpha, notch_c[2], notch_c[3], notch_c[4] }
 
-				local ui_scale = (RESOLUTION_LOOKUP and RESOLUTION_LOOKUP.scale) or 1
-				local desired_notch_px = math.max(1, math.round((at_state.notch_width or 2) * (ctx.scale or 1)))
-				local notch_thick = desired_notch_px / ui_scale
-				local notch_len = math.max(2, math.floor((vertical and ctx.w or ctx.h) * (at_state.notch_len_pct or 0.5)))
-				local rw = vertical and notch_len or notch_thick
-				local rh = vertical and notch_thick or notch_len
+					local ui_scale = (RESOLUTION_LOOKUP and RESOLUTION_LOOKUP.scale) or 1
+					local desired_notch_px = math.max(1, math.round((at_state.notch_width or 2) * (ctx.scale or 1)))
+					local notch_thick = desired_notch_px / ui_scale
+					local notch_len = math.max(2, math.floor((vertical and ctx.w or ctx.h) * (at_state.notch_len_pct or 0.5)))
+					local rw = vertical and notch_len or notch_thick
+					local rh = vertical and notch_thick or notch_len
 
-				for j = 0, draw_segs - 1 do
-					local seg_pos = (vertical and ctx.y or ctx.x) + j * cell_stride
-					for k = 1, notches_per_seg do
-						local raw_pos = seg_pos + math.floor((k / (notches_per_seg + 1)) * cell_len)
-						local screen_axis = math.floor(raw_pos * ui_scale + 0.5) - math.floor(desired_notch_px * 0.5)
-						local snapped_pos = screen_axis / ui_scale
-
-						local rx = vertical and ctx.x or snapped_pos
-						local ry = vertical and snapped_pos or ctx.y
-
-						if has_rot then
-							local ox = rx + rw * 0.5 - px
-							local oy = ry + rh * 0.5 - py
-							rx = px + (ox * ca + oy * sa) - rw * 0.5
-							ry = py + (oy * ca - ox * sa) - rh * 0.5
+					for j = 0, draw_segs - 1 do
+						local seg_pos
+						if vertical then
+							if ctx.orientation == "bottom_top" then
+								seg_pos = ctx.y + ctx.h - (j + 1) * cell_stride + gap_px
+							else
+								seg_pos = ctx.y + j * cell_stride
+							end
+						else
+							if ctx.orientation == "right_left" then
+								seg_pos = ctx.x + ctx.w - (j + 1) * cell_stride + gap_px
+							else
+								seg_pos = ctx.x + j * cell_stride
+							end
 						end
 
-						d:rect(rx, ry, ctx.z + 5, rw, rh, notch_color, rot)
+						for k = 1, notches_per_seg do
+							local raw_pos = seg_pos + math.floor((k / (notches_per_seg + 1)) * cell_len)
+							local screen_axis = math.floor(raw_pos * ui_scale + 0.5) - math.floor(desired_notch_px * 0.5)
+							local snapped_pos = screen_axis / ui_scale
+
+							local rx = vertical and ctx.x or snapped_pos
+							local ry = vertical and snapped_pos or ctx.y
+
+							if has_rot then
+								local ox = rx + rw * 0.5 - px
+								local oy = ry + rh * 0.5 - py
+								rx = px + (ox * ca + oy * sa) - rw * 0.5
+								ry = py + (oy * ca - ox * sa) - rh * 0.5
+							end
+
+							d:rect(rx, ry, ctx.z + 5, rw, rh, notch_color, rot)
+						end
 					end
 				end
 			end
@@ -484,8 +507,16 @@ mod.on_all_mods_loaded = function()
 		}
 
 		mod:hook(Ring, "draw", function(func, ctx, ...)
-			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
-			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			local at_state = mod.get_ability_state()
+			local fill_c = ctx.fill_color
+			local is_at_bar = fill_c and (fill_c._is_at_bar or fill_c._at_segment_colors ~= nil or (at_state and fill_c == at_state.bar_color))
+
+			if not is_at_bar then
+				return func(ctx, ...)
+			end
+
+			local seg_colors = fill_c._at_segment_colors
+			local seg_fractions = fill_c._at_segment_fractions
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
 			if not has_multi then
@@ -608,8 +639,16 @@ mod.on_all_mods_loaded = function()
 		}
 
 		mod:hook(Curved, "draw", function(func, ctx, ...)
-			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
-			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			local at_state = mod.get_ability_state()
+			local fill_c = ctx.fill_color
+			local is_at_bar = fill_c and (fill_c._is_at_bar or fill_c._at_segment_colors ~= nil or (at_state and fill_c == at_state.bar_color))
+
+			if not is_at_bar then
+				return func(ctx, ...)
+			end
+
+			local seg_colors = fill_c._at_segment_colors
+			local seg_fractions = fill_c._at_segment_fractions
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
 			if not has_multi then

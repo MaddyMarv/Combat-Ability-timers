@@ -169,6 +169,23 @@ local widgets = {
 						default_value = true,
 					},
 					{
+						setting_id = "lock_charge_slots",
+						display_name = mod:localize("lock_charge_slots"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
+						setting_id = "consume_order",
+						display_name = mod:localize("consume_order"),
+						type = "dropdown",
+						default_value = "right_to_left",
+						localize = true,
+						options = {
+							{ text = "consume_order_right_to_left", value = "right_to_left" },
+							{ text = "consume_order_left_to_right", value = "left_to_right" },
+						},
+					},
+					{
 						setting_id = "segment_gap",
 						display_name = mod:localize("segment_gap"),
 						type = "numeric",
