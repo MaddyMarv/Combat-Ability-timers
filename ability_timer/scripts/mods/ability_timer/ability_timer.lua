@@ -98,24 +98,22 @@ local function _add_deployable(unit, name, duration, icon, game_session, game_ob
         end
     end
 
+    local ltr = mod:get("consume_order") == "left_to_right"
     local assigned_slot
-    if remaining_charges and max_charges > 1 then
-        assigned_slot = math.clamp(math.floor(remaining_charges + 0.0001) + 1, 1, max_charges)
-    else
-        assigned_slot = max_charges
-    end
-
-    if used_slots[assigned_slot] then
-        assigned_slot = max_charges
-        while assigned_slot > 1 and used_slots[assigned_slot] do
-            assigned_slot = assigned_slot - 1
-        end
-        if used_slots[assigned_slot] then
+    if max_charges > 1 then
+        if ltr then
             assigned_slot = 1
-            while used_slots[assigned_slot] do
+            while used_slots[assigned_slot] and assigned_slot < max_charges do
                 assigned_slot = assigned_slot + 1
             end
+        else
+            assigned_slot = max_charges
+            while used_slots[assigned_slot] and assigned_slot > 1 do
+                assigned_slot = assigned_slot - 1
+            end
         end
+    else
+        assigned_slot = 1
     end
 
     mod.tracked_deployables[unit] = {

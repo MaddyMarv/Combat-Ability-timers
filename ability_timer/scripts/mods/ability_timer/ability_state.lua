@@ -209,6 +209,7 @@ local function _get_active_deployables()
 				duration = data.duration,
 				fraction = math.clamp(remaining / data.duration, 0, 1),
 				start_time = data.start_time,
+				slot = data.slot,
 			}
 		else
 			deployables[unit] = nil
@@ -220,11 +221,51 @@ local function _get_active_deployables()
 	end)
 
 	local num_segs = state.segments or 2
-	for i = 1, #active do
-		local d = active[i]
-		local s = math.min(i, num_segs)
-		d.data.slot = s
-		d.slot = s
+	local lock_slots = mod:get("lock_charge_slots") ~= false
+	local ltr = mod:get("consume_order") == "left_to_right"
+
+	if not lock_slots then
+		for i = 1, #active do
+			local d = active[i]
+			local s = math.min(i, num_segs)
+			d.data.slot = s
+			d.slot = s
+		end
+	else
+		local used_slots = {}
+		for i = 1, #active do
+			local d = active[i]
+			if d.slot and d.slot >= 1 and d.slot <= num_segs and not used_slots[d.slot] then
+				used_slots[d.slot] = true
+			else
+				d.slot = nil
+			end
+		end
+		for i = 1, #active do
+			local d = active[i]
+			if not d.slot then
+				local s
+				if ltr then
+					for candidate = 1, num_segs do
+						if not used_slots[candidate] then
+							s = candidate
+							break
+						end
+					end
+				else
+					for candidate = num_segs, 1, -1 do
+						if not used_slots[candidate] then
+							s = candidate
+							break
+						end
+					end
+				end
+				s = s or math.min(i, num_segs)
+				used_slots[s] = true
+				d.slot = s
+				d.data.slot = s
+			end
+		end
 	end
 
 	return active
@@ -260,13 +301,17 @@ local function _resolve_bubble(active_deployables)
 	state.bubble_visible = true
 	state.bubble_percent = lowest_pct
 
-	table.sort(bubble_list, function(a, b)
-		return a.start_time < b.start_time
-	end)
-
 	local mode = mod:get("bubble_health_mode") or "both"
 	if mode == "newest" and #bubble_list > 1 then
-		bubble_list = { bubble_list[#bubble_list] }
+		table.sort(bubble_list, function(a, b)
+			return a.start_time > b.start_time
+		end)
+		bubble_list = { bubble_list[1] }
+	elseif mode == "oldest" and #bubble_list > 1 then
+		table.sort(bubble_list, function(a, b)
+			return a.start_time < b.start_time
+		end)
+		bubble_list = { bubble_list[1] }
 	elseif mode == "lowest" and #bubble_list > 1 then
 		local lowest_bubble = bubble_list[1]
 		for i = 2, #bubble_list do
@@ -275,8 +320,10 @@ local function _resolve_bubble(active_deployables)
 			end
 		end
 		bubble_list = { lowest_bubble }
-	elseif mode == "oldest" and #bubble_list > 1 then
-		bubble_list = { bubble_list[1] }
+	else
+		table.sort(bubble_list, function(a, b)
+			return (a.slot or 1) < (b.slot or 1)
+		end)
 	end
 
 	local use_color = mod:get("use_progress_color_text") ~= false
