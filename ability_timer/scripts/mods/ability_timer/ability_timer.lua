@@ -291,8 +291,9 @@ mod.on_all_mods_loaded = function()
 			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
 			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
 			local notches_per_seg = at_state and at_state.notches_per_seg or 0
+			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
-			if (not seg_colors or #seg_colors <= 1) and notches_per_seg <= 0 then
+			if not has_multi and notches_per_seg <= 0 then
 				return func(ctx, ...)
 			end
 
@@ -373,20 +374,30 @@ mod.on_all_mods_loaded = function()
 						local s_color = seg_colors and seg_colors[seg_idx] or ctx.fill_color
 						local c = { ctx.fill_color[1] or 255, s_color[2], s_color[3], s_color[4] }
 						local fill_len = cell_len * s_frac
-						local seg_pos = (vertical and ctx.y or ctx.x) + j * cell_stride
 
-						local fill_start = seg_pos
+						local seg_pos
+						local fill_start
 						if vertical then
 							if ctx.orientation == "bottom_top" then
+								seg_pos = ctx.y + ctx.h - (j + 1) * cell_stride + gap_px
 								fill_start = seg_pos + (cell_len - fill_len)
 							elseif ctx.orientation == "center_vertical" then
+								seg_pos = ctx.y + j * cell_stride
 								fill_start = seg_pos + math.floor((cell_len - fill_len) * 0.5)
+							else
+								seg_pos = ctx.y + j * cell_stride
+								fill_start = seg_pos
 							end
 						else
 							if ctx.orientation == "right_left" then
+								seg_pos = ctx.x + ctx.w - (j + 1) * cell_stride + gap_px
 								fill_start = seg_pos + (cell_len - fill_len)
 							elseif ctx.orientation == "center" then
+								seg_pos = ctx.x + j * cell_stride
 								fill_start = seg_pos + math.floor((cell_len - fill_len) * 0.5)
+							else
+								seg_pos = ctx.x + j * cell_stride
+								fill_start = seg_pos
 							end
 						end
 
@@ -447,80 +458,208 @@ mod.on_all_mods_loaded = function()
 
 	local Ring = hud_studio.hud_studio_progress_bar_ring
 	if Ring and DrawCalls then
+		local MASK_MATERIAL = "content/ui/materials/hud/crosshairs/charge_up_mask"
+
+		local RIGHT_ART = { mask_u = { 0, 1 }, mask_flip = true }
+		local LEFT_ART = { mask_u = { 1, 0 }, mask_flip = false }
+
+		local function _ring_orientation(art, rotation, reversed)
+			return {
+				art = art,
+				rotation = rotation,
+				swap_axes = rotation ~= 0,
+				reversed = reversed,
+			}
+		end
+
+		local RING_ORIENTATIONS = {
+			ring_right = _ring_orientation(RIGHT_ART, 0, false),
+			ring_left = _ring_orientation(LEFT_ART, 0, false),
+			ring_top = _ring_orientation(RIGHT_ART, 90, true),
+			ring_bottom = _ring_orientation(RIGHT_ART, -90, false),
+			ring_right_reversed = _ring_orientation(RIGHT_ART, 0, true),
+			ring_left_reversed = _ring_orientation(LEFT_ART, 0, true),
+			ring_top_reversed = _ring_orientation(RIGHT_ART, 90, false),
+			ring_bottom_reversed = _ring_orientation(RIGHT_ART, -90, true),
+		}
+
 		mod:hook(Ring, "draw", function(func, ctx, ...)
 			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
 			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
-			if not seg_colors or #seg_colors <= 1 then
+			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
+
+			if not has_multi then
 				return func(ctx, ...)
 			end
 
+			local orig_fill_a = ctx.fill_color and ctx.fill_color[1] or 255
+			ctx.fill_color[1] = 0
+			func(ctx, ...)
+			ctx.fill_color[1] = orig_fill_a
+
+			if orig_fill_a <= 0 then
+				return
+			end
+
 			local d = DrawCalls.bind(ctx.ui_renderer)
-			local orig_tex = d.texture
-			local fill_call = 0
+			local o = RING_ORIENTATIONS[ctx.orientation] or RING_ORIENTATIONS.ring_left
+			local w, h = ctx.w, ctx.h
+			local local_w = o.swap_axes and h or w
+			local local_h = o.swap_axes and w or h
+			local reversed = o.reversed
+			local rotation = o.rotation + (tonumber(ctx.rotation) or 0)
+			local radians = math.rad(rotation)
+			local cos_a, sin_a = math.cos(radians), math.sin(radians)
+			local center_x = ctx.x + w * 0.5
+			local center_y = ctx.y + h * 0.5
 
-			d.texture = function(self, mat, rx, ry, rz, rw, rh, color, uv, rot, hold)
-				if rz == ctx.z + 1 and color == ctx.fill_color then
-					fill_call = fill_call + 1
-					local c = seg_colors[fill_call]
-					if c then
-						color = { ctx.fill_color[1] or 255, c[2], c[3], c[4] }
-					end
-					if seg_fractions and seg_fractions[fill_call] then
-						local f = seg_fractions[fill_call]
-						if f <= 0 then
-							return
-						elseif f < 1 and rh then
-							local old_h = rh
-							rh = old_h * f
-							ry = ry + (old_h - rh) * 0.5
-						end
-					end
+			local segments = ctx.segments or 1
+			local gap = (segments > 1) and ((ctx.segment_gap or 3) * (ctx.scale or 1)) or 0
+			local cell = (local_h - gap * (segments - 1)) / segments
+			if cell < 0 then
+				cell = 0
+			end
+
+			local render_settings = ctx.ui_renderer.render_settings
+			local fade = (render_settings and render_settings.alpha_multiplier) or 1
+			local alpha = orig_fill_a * fade
+
+			for i = 0, segments - 1 do
+				local seg_idx = i + 1
+				local s_frac = 0
+				if seg_fractions and seg_fractions[seg_idx] ~= nil then
+					s_frac = math.clamp(seg_fractions[seg_idx], 0, 1)
+				else
+					local lit = (ctx.fraction or 0) * segments - i
+					s_frac = math.clamp(lit, 0, 1)
 				end
-				return orig_tex(self, mat, rx, ry, rz, rw, rh, color, uv, rot, hold)
-			end
 
-			local saved_frac = ctx.fraction
-			if seg_fractions and #seg_fractions > 1 then
-				ctx.fraction = 1.0
-			end
+				if s_frac > 0 and alpha > 0 then
+					local near = i * (cell + gap)
+					local far = near + cell * s_frac
 
-			local res = func(ctx, ...)
-			ctx.fraction = saved_frac
-			d.texture = orig_tex
-			return res
+					local top, bottom
+					if reversed then
+						top, bottom = near, far
+					else
+						top, bottom = local_h - far, local_h - near
+					end
+
+					local v_top = top / local_h
+					local v_bottom = bottom / local_h
+					if o.art.mask_flip then
+						v_top, v_bottom = 1 - v_top, 1 - v_bottom
+					end
+
+					local uvs = {
+						{ o.art.mask_u[1], v_top },
+						{ o.art.mask_u[2], v_bottom },
+					}
+
+					local height = bottom - top
+					local offset_y = top + height * 0.5 - local_h * 0.5
+					local turned_x = offset_y * sin_a
+					local turned_y = offset_y * cos_a
+
+					local seg_c = (seg_colors and seg_colors[seg_idx]) or ctx.fill_color
+					local color = {
+						alpha,
+						seg_c[2] or 255,
+						seg_c[3] or 255,
+						seg_c[4] or 255,
+					}
+
+					d:texture(
+						MASK_MATERIAL,
+						center_x + turned_x - local_w * 0.5,
+						center_y + turned_y - height * 0.5,
+						ctx.z + 1,
+						local_w,
+						height,
+						color,
+						uvs,
+						rotation
+					)
+				end
+			end
 		end)
 	end
 
 	local Curved = hud_studio.hud_studio_progress_bar_curved
 	local CompositeMaterial = hud_studio.hud_studio_composite_material
 	if Curved and CompositeMaterial then
+		local CURVED_REVERSED = {
+			curved_top_left = false,
+			curved_top_left_reversed = true,
+			curved_top_right = false,
+			curved_top_right_reversed = true,
+			curved_bottom_left = true,
+			curved_bottom_left_reversed = false,
+			curved_bottom_right = true,
+			curved_bottom_right_reversed = false,
+			semicircle_right = false,
+			semicircle_right_reversed = true,
+			semicircle_left = false,
+			semicircle_left_reversed = true,
+			semicircle_top = true,
+			semicircle_top_reversed = false,
+			semicircle_bottom = false,
+			semicircle_bottom_reversed = true,
+		}
+
 		mod:hook(Curved, "draw", function(func, ctx, ...)
 			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
 			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
-			if not seg_colors or #seg_colors <= 1 then
+			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
+
+			if not has_multi then
 				return func(ctx, ...)
 			end
 
+			local is_reversed = CURVED_REVERSED[ctx.orientation] == true
 			local orig_resolve = CompositeMaterial.resolve
 			local fill_count = 0
 			local num_segs = ctx.segments or 1
-			local active_seg = math.clamp(math.floor((ctx.fraction or 0) * num_segs) + 1, 1, num_segs)
+
+			local active_seg = 1
+			if seg_fractions then
+				for idx = 1, num_segs do
+					local f = seg_fractions[idx] or 0
+					if f > 0 and f < 1 then
+						active_seg = idx
+						break
+					end
+				end
+			end
 
 			CompositeMaterial.resolve = function(ui_renderer, descriptor)
 				if descriptor and type(descriptor.values) == "table" and descriptor.values.fillcolor then
 					local target_idx = nil
+					local is_overlay = false
+
 					if not descriptor.outline_silenced then
 						fill_count = fill_count + 1
 						target_idx = fill_count
 					elseif fill_count >= num_segs then
 						target_idx = active_seg
+						is_overlay = true
 					end
 
 					if target_idx then
-						if seg_fractions and seg_fractions[target_idx] then
-							descriptor.values.amount = seg_fractions[target_idx]
+						local s_frac = seg_fractions and seg_fractions[target_idx]
+						if s_frac ~= nil then
+							if is_reversed then
+								if is_overlay then
+									descriptor.values.amount = 1
+								else
+									descriptor.values.amount = (s_frac >= 1) and 1 or 0
+								end
+							else
+								descriptor.values.amount = s_frac
+							end
 						end
-						local c = seg_colors[target_idx]
+
+						local c = seg_colors and seg_colors[target_idx]
 						if c then
 							local slot = descriptor.values.fillcolor
 							slot[1] = math.clamp((c[2] or 255) / 255, 0.1, 1)
