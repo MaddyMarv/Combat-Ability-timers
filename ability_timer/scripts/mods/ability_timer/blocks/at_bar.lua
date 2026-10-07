@@ -26,10 +26,16 @@ local s = state.at and state.at.get_ability_state()\
 current = s and s.fraction or 0",
 						kind = "code",
 					},
+					segments = {
+						body = "state.at = state.at or get_mod(\"ability_timer\")\
+local s = state.at and state.at.get_ability_state()\
+segments = s and s.segments or 1",
+						kind = "code",
+					},
 					visible = {
 						body = "state.at = state.at or get_mod(\"ability_timer\")\
 local s = state.at and state.at.get_ability_state()\
-visible = s and s.timer_visible or false",
+visible = s and (s.bar_visible or s.timer_visible) or false",
 						kind = "code",
 					},
 				},
@@ -53,6 +59,7 @@ visible = s and s.timer_visible or false",
 					255,
 					255,
 				},
+				segment_gap = 3,
 				size = {
 					210,
 					15,
@@ -62,6 +69,7 @@ visible = s and s.timer_visible or false",
 			values = {
 				current = 1,
 				max = 1,
+				segments = 1,
 			},
 		},
 	},

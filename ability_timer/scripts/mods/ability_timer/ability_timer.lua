@@ -71,7 +71,7 @@ mod.on_setting_changed = function(setting_id)
 	end
 	
 	if health then
-		health:set_scenegraph_position("root", 661.25 + (mod:get("health_position_x") or 0), 620 + (mod:get("health_position_y") or 0), 100)
+		health:set_scenegraph_position("root", 600 + (mod:get("health_position_x") or 0), 674 + (mod:get("health_position_y") or 0), 100)
 	end
 	
 	if charges then
@@ -79,8 +79,45 @@ mod.on_setting_changed = function(setting_id)
 	end
 end
 
+local COMBAT_ABILITY = "combat_ability"
+
 local function _add_deployable(unit, name, duration, icon, game_session, game_object_id, max_health)
     if not unit then return end
+
+    local player = Managers.player and Managers.player:local_player(1)
+    local player_unit = player and player.player_unit
+    local ability_extension = player_unit and ScriptUnit.has_extension(player_unit, "ability_system")
+    local remaining_charges = ability_extension and ability_extension:remaining_ability_charges(COMBAT_ABILITY)
+    local raw_max = ability_extension and ability_extension:max_ability_charges(COMBAT_ABILITY)
+    local max_charges = (raw_max and raw_max > 0) and raw_max or 1
+
+    local used_slots = {}
+    for _, d in pairs(mod.tracked_deployables) do
+        if d.slot then
+            used_slots[d.slot] = true
+        end
+    end
+
+    local assigned_slot
+    if remaining_charges and max_charges > 1 then
+        assigned_slot = math.clamp(math.floor(remaining_charges + 0.0001) + 1, 1, max_charges)
+    else
+        assigned_slot = max_charges
+    end
+
+    if used_slots[assigned_slot] then
+        assigned_slot = max_charges
+        while assigned_slot > 1 and used_slots[assigned_slot] do
+            assigned_slot = assigned_slot - 1
+        end
+        if used_slots[assigned_slot] then
+            assigned_slot = 1
+            while used_slots[assigned_slot] do
+                assigned_slot = assigned_slot + 1
+            end
+        end
+    end
+
     mod.tracked_deployables[unit] = {
         name = name,
         start_time = Managers.time:time("gameplay"),
@@ -91,7 +128,8 @@ local function _add_deployable(unit, name, duration, icon, game_session, game_ob
         max_health = max_health,
         current_health = max_health,
         damage_taken = 0,
-        last_poll_time = -math.huge
+        last_poll_time = -math.huge,
+        slot = assigned_slot,
     }
 end
 
@@ -244,4 +282,267 @@ mod.on_all_mods_loaded = function()
 			"scripts/mods/ability_timer/blocks/at_bubble_health",
 		},
 	})
+
+	local Straight = hud_studio.hud_studio_progress_bar_straight
+	local DrawCalls = hud_studio.draw_calls
+	if Straight and DrawCalls then
+		mod:hook(Straight, "draw", function(func, ctx, ...)
+			local at_state = mod.get_ability_state()
+			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
+			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			local notches_per_seg = at_state and at_state.notches_per_seg or 0
+
+			if (not seg_colors or #seg_colors <= 1) and notches_per_seg <= 0 then
+				return func(ctx, ...)
+			end
+
+			local d = DrawCalls.bind(ctx.ui_renderer)
+			local orig_rect = d.rect
+			local orig_tex = d.texture
+
+			local vertical = ctx.orientation == "top_bottom" or ctx.orientation == "bottom_top" or ctx.orientation == "center_vertical"
+			local axis_len = vertical and ctx.h or ctx.w
+			local num_segs = ctx.segments or 1
+			local is_center = ctx.orientation == "center" or ctx.orientation == "center_vertical"
+			local draw_segs = is_center and (num_segs * 2) or num_segs
+
+			local gap_px = (draw_segs > 1 and axis_len > 0) and (ctx.segment_gap * ctx.scale) or 0
+			local cell_len = (axis_len - (draw_segs - 1) * gap_px) / draw_segs
+			local cell_stride = cell_len + gap_px
+			if cell_stride <= 0 then
+				cell_stride = 1
+			end
+
+			local rot = tonumber(ctx.rotation) or 0
+			local has_rot = rot ~= 0
+			local ca, sa, px, py
+			if has_rot then
+				local rad = math.rad(rot)
+				ca, sa = math.cos(rad), math.sin(rad)
+				px, py = ctx.x + ctx.w * 0.5, ctx.y + ctx.h * 0.5
+			end
+
+			local u0 = vertical and ((ctx.orientation == "bottom_top") and (ctx.y + ctx.h) or ctx.y)
+				or ((ctx.orientation == "right_left") and (ctx.x + ctx.w) or ctx.x)
+			local u1 = vertical and ((ctx.orientation == "bottom_top") and ctx.y or (ctx.y + ctx.h))
+				or ((ctx.orientation == "right_left") and ctx.x or (ctx.x + ctx.w))
+
+			local function _get_seg_color(rx, ry, rw, rh)
+				local mx = rx + rw * 0.5
+				local my = ry + rh * 0.5
+				if has_rot then
+					local dx, dy = mx - px, my - py
+					mx = px + dx * ca + dy * sa
+					my = py + dy * ca - dx * sa
+				end
+				local mid = vertical and my or mx
+				local dist = (u1 < u0) and (u0 - mid) or (mid - u0)
+				local idx = math.clamp(math.floor(dist / cell_stride) + 1, 1, draw_segs)
+				if is_center then
+					idx = math.clamp(math.floor(math.abs(idx - (num_segs + 0.5))) + 1, 1, num_segs)
+				end
+				local c = seg_colors and seg_colors[idx]
+				return c and { ctx.fill_color[1] or 255, c[2], c[3], c[4] }
+			end
+
+			local has_multi_frac = seg_fractions and #seg_fractions > 1
+			local saved_frac = ctx.fraction
+
+			if has_multi_frac then
+				ctx.fraction = 0
+			elseif seg_colors and #seg_colors > 1 then
+				d.rect = function(self, rx, ry, rz, rw, rh, color, r)
+					return orig_rect(self, rx, ry, rz, rw, rh, (color == ctx.fill_color and _get_seg_color(rx, ry, rw, rh)) or color, r)
+				end
+				d.texture = function(self, mat, rx, ry, rz, rw, rh, color, uv, r, hold)
+					return orig_tex(self, mat, rx, ry, rz, rw, rh, (color == ctx.fill_color and _get_seg_color(rx, ry, rw, rh)) or color, uv, r, hold)
+				end
+			end
+
+			local res = func(ctx, ...)
+			ctx.fraction = saved_frac
+
+			d.rect = orig_rect
+			d.texture = orig_tex
+
+			if has_multi_frac then
+				for j = 0, draw_segs - 1 do
+					local seg_idx = is_center and (math.clamp(math.floor(math.abs(j - (num_segs - 0.5))) + 1, 1, num_segs)) or (j + 1)
+					local s_frac = math.clamp(seg_fractions[seg_idx] or 0, 0, 1)
+					if s_frac > 0 then
+						local s_color = seg_colors and seg_colors[seg_idx] or ctx.fill_color
+						local c = { ctx.fill_color[1] or 255, s_color[2], s_color[3], s_color[4] }
+						local fill_len = cell_len * s_frac
+						local seg_pos = (vertical and ctx.y or ctx.x) + j * cell_stride
+
+						local fill_start = seg_pos
+						if vertical then
+							if ctx.orientation == "bottom_top" then
+								fill_start = seg_pos + (cell_len - fill_len)
+							elseif ctx.orientation == "center_vertical" then
+								fill_start = seg_pos + math.floor((cell_len - fill_len) * 0.5)
+							end
+						else
+							if ctx.orientation == "right_left" then
+								fill_start = seg_pos + (cell_len - fill_len)
+							elseif ctx.orientation == "center" then
+								fill_start = seg_pos + math.floor((cell_len - fill_len) * 0.5)
+							end
+						end
+
+						local rx = vertical and ctx.x or fill_start
+						local ry = vertical and fill_start or ctx.y
+						local rw = vertical and ctx.w or fill_len
+						local rh = vertical and fill_len or ctx.h
+
+						if has_rot then
+							local ox = rx + rw * 0.5 - px
+							local oy = ry + rh * 0.5 - py
+							rx = px + (ox * ca + oy * sa) - rw * 0.5
+							ry = py + (oy * ca - ox * sa) - rh * 0.5
+						end
+
+						orig_rect(d, rx, ry, ctx.z + 1, rw, rh, c, rot)
+					end
+				end
+			end
+
+			if notches_per_seg > 0 then
+				local notch_c = at_state.notch_color or { 255, 88, 99, 80 }
+				local notch_alpha = (ctx.fill_color and ctx.fill_color[1] or 255) / 255
+				local notch_color = { (notch_c[1] or 255) * notch_alpha, notch_c[2], notch_c[3], notch_c[4] }
+
+				local ui_scale = (RESOLUTION_LOOKUP and RESOLUTION_LOOKUP.scale) or 1
+				local desired_notch_px = math.max(1, math.round((at_state.notch_width or 2) * (ctx.scale or 1)))
+				local notch_thick = desired_notch_px / ui_scale
+				local notch_len = math.max(2, math.floor((vertical and ctx.w or ctx.h) * (at_state.notch_len_pct or 0.5)))
+				local rw = vertical and notch_len or notch_thick
+				local rh = vertical and notch_thick or notch_len
+
+				for j = 0, draw_segs - 1 do
+					local seg_pos = (vertical and ctx.y or ctx.x) + j * cell_stride
+					for k = 1, notches_per_seg do
+						local raw_pos = seg_pos + math.floor((k / (notches_per_seg + 1)) * cell_len)
+						local screen_axis = math.floor(raw_pos * ui_scale + 0.5) - math.floor(desired_notch_px * 0.5)
+						local snapped_pos = screen_axis / ui_scale
+
+						local rx = vertical and ctx.x or snapped_pos
+						local ry = vertical and snapped_pos or ctx.y
+
+						if has_rot then
+							local ox = rx + rw * 0.5 - px
+							local oy = ry + rh * 0.5 - py
+							rx = px + (ox * ca + oy * sa) - rw * 0.5
+							ry = py + (oy * ca - ox * sa) - rh * 0.5
+						end
+
+						d:rect(rx, ry, ctx.z + 5, rw, rh, notch_color, rot)
+					end
+				end
+			end
+
+			return res
+		end)
+	end
+
+	local Ring = hud_studio.hud_studio_progress_bar_ring
+	if Ring and DrawCalls then
+		mod:hook(Ring, "draw", function(func, ctx, ...)
+			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
+			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			if not seg_colors or #seg_colors <= 1 then
+				return func(ctx, ...)
+			end
+
+			local d = DrawCalls.bind(ctx.ui_renderer)
+			local orig_tex = d.texture
+			local fill_call = 0
+
+			d.texture = function(self, mat, rx, ry, rz, rw, rh, color, uv, rot, hold)
+				if rz == ctx.z + 1 and color == ctx.fill_color then
+					fill_call = fill_call + 1
+					local c = seg_colors[fill_call]
+					if c then
+						color = { ctx.fill_color[1] or 255, c[2], c[3], c[4] }
+					end
+					if seg_fractions and seg_fractions[fill_call] then
+						local f = seg_fractions[fill_call]
+						if f <= 0 then
+							return
+						elseif f < 1 and rh then
+							local old_h = rh
+							rh = old_h * f
+							ry = ry + (old_h - rh) * 0.5
+						end
+					end
+				end
+				return orig_tex(self, mat, rx, ry, rz, rw, rh, color, uv, rot, hold)
+			end
+
+			local saved_frac = ctx.fraction
+			if seg_fractions and #seg_fractions > 1 then
+				ctx.fraction = 1.0
+			end
+
+			local res = func(ctx, ...)
+			ctx.fraction = saved_frac
+			d.texture = orig_tex
+			return res
+		end)
+	end
+
+	local Curved = hud_studio.hud_studio_progress_bar_curved
+	local CompositeMaterial = hud_studio.hud_studio_composite_material
+	if Curved and CompositeMaterial then
+		mod:hook(Curved, "draw", function(func, ctx, ...)
+			local seg_colors = ctx.fill_color and ctx.fill_color._at_segment_colors
+			local seg_fractions = ctx.fill_color and ctx.fill_color._at_segment_fractions
+			if not seg_colors or #seg_colors <= 1 then
+				return func(ctx, ...)
+			end
+
+			local orig_resolve = CompositeMaterial.resolve
+			local fill_count = 0
+			local num_segs = ctx.segments or 1
+			local active_seg = math.clamp(math.floor((ctx.fraction or 0) * num_segs) + 1, 1, num_segs)
+
+			CompositeMaterial.resolve = function(ui_renderer, descriptor)
+				if descriptor and type(descriptor.values) == "table" and descriptor.values.fillcolor then
+					local target_idx = nil
+					if not descriptor.outline_silenced then
+						fill_count = fill_count + 1
+						target_idx = fill_count
+					elseif fill_count >= num_segs then
+						target_idx = active_seg
+					end
+
+					if target_idx then
+						if seg_fractions and seg_fractions[target_idx] then
+							descriptor.values.amount = seg_fractions[target_idx]
+						end
+						local c = seg_colors[target_idx]
+						if c then
+							local slot = descriptor.values.fillcolor
+							slot[1] = math.clamp((c[2] or 255) / 255, 0.1, 1)
+							slot[2] = math.clamp((c[3] or 255) / 255, 0.1, 1)
+							slot[3] = math.clamp((c[4] or 255) / 255, 0.1, 1)
+							slot[4] = 1
+
+							local render_settings = ui_renderer.render_settings
+							local fade = (render_settings and render_settings.alpha_multiplier) or 1
+							local alpha = (ctx.fill_color[1] or 255) / 255
+							descriptor.values.fill_outline_opacity[1] = 1.3 * alpha * fade
+						end
+					end
+				end
+
+				return orig_resolve(ui_renderer, descriptor)
+			end
+
+			local res = func(ctx, ...)
+			CompositeMaterial.resolve = orig_resolve
+			return res
+		end)
+	end
+
 end

@@ -23,7 +23,7 @@ color = s and s.bubble_color",
 					text = {
 						body = "state.at = state.at or get_mod(\"ability_timer\")\
 local s = state.at and state.at.get_ability_state()\
-text = s and (s.bubble_percent .. \"%\") or \"\"",
+text = s and (s.bubble_text or (s.bubble_percent and (s.bubble_percent .. \"%\")) or \"\") or \"\"",
 						kind = "code",
 					},
 					visible = {
@@ -52,7 +52,7 @@ visible = s and s.bubble_visible or false",
 				font_type = "machine_medium",
 				shadow = true,
 				size = {
-					110,
+					210,
 					30,
 				},
 			},

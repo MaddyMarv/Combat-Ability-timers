@@ -17,7 +17,7 @@ return {
 					visible = {
 						body = "state.at = state.at or get_mod(\"ability_timer\")\
 local s = state.at and state.at.get_ability_state()\
-visible = s and s.timer_visible or false",
+visible = s and (s.bar_visible or s.timer_visible) or false",
 						kind = "code",
 					},
 				},

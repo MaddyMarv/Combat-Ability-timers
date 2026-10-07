@@ -9,7 +9,7 @@ local HudElementAbilityTimerHealth = class("HudElementAbilityTimerHealth", "HudE
 
 local function _create_scenegraph()
 	local font_size = 28
-	local text_w = 110
+	local text_w = 210
 	local text_h = font_size * 1.2
 
 	return {
@@ -23,7 +23,7 @@ local function _create_scenegraph()
 			horizontal_alignment = "left",
 			vertical_alignment = "top",
 			size = { text_w, text_h },
-			position = { 661.25, 620, 100 },
+			position = { 600, 674, 100 },
 		},
 		health_text = {
 			parent = "root",
@@ -67,7 +67,7 @@ HudElementAbilityTimerHealth.init = function(self, parent, draw_layer, start_sca
 
 	HudElementAbilityTimerHealth.super.init(self, parent, draw_layer, start_scale, definitions)
 	
-	self:set_scenegraph_position("root", 661.25 + (mod:get("health_position_x") or 0), 620 + (mod:get("health_position_y") or 0), 100)
+	self:set_scenegraph_position("root", 600 + (mod:get("health_position_x") or 0), 674 + (mod:get("health_position_y") or 0), 100)
 end
 
 HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_settings, input_service)
@@ -94,7 +94,7 @@ HudElementAbilityTimerHealth.update = function(self, dt, t, ui_renderer, render_
 	health_widget.style.text.text_color[1] = 255 * alpha
 
 	health_widget.content.visible = true
-	health_widget.content.text = string.format("%d%%", ability_state.bubble_percent)
+	health_widget.content.text = ability_state.bubble_text or string.format("%d%%", ability_state.bubble_percent or 100)
 	local health_color = health_widget.style.text.text_color
 	local src = ability_state.bubble_color
 	health_color[1] = 255 * alpha

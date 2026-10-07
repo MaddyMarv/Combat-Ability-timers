@@ -23,6 +23,24 @@ return {
 	show_decimals = {
 		en = "Show decimals",
 	},
+	show_bubble_health = {
+		en = "Show Bubble Shield Health",
+	},
+	bubble_health_mode = {
+		en = "Bubble Health Display Mode",
+	},
+	bubble_mode_both = {
+		en = "Both (1st placed | 2nd placed)",
+	},
+	bubble_mode_newest = {
+		en = "Newest Bubble Only",
+	},
+	bubble_mode_lowest = {
+		en = "Lowest Health Only",
+	},
+	bubble_mode_oldest = {
+		en = "Oldest Bubble Only",
+	},
 	show_native_hud = {
 		en = "Show Ability Timer UI",
 	},
@@ -33,7 +51,7 @@ return {
 		en = "Base Settings",
 	},
 	group_display_colors_static = {
-		en = "Base Colors",
+		en = "Static Colors (Without Progress Color)",
 	},
 	group_display_colors_dynamic = {
 		en = "Dynamic Progress Colors",
@@ -44,17 +62,56 @@ return {
 	group_display_scriers = {
 		en = "Scrier's Gaze Tracking",
 	},
+	group_gauge_dimensions = {
+		en = "Dimensions & Flow",
+	},
+	group_gauge_segments = {
+		en = "Multi-Charge Segments",
+	},
+	group_gauge_notches = {
+		en = "Bar Notches",
+	},
+	color_settings = {
+		en = "Colors",
+	},
+	position_settings = {
+		en = "Position & Typography",
+	},
+	position_settings_bar = {
+		en = "Gauge Position",
+	},
+	position_settings_timer = {
+		en = "Timer Text",
+	},
+	position_settings_charges = {
+		en = "Charges Counter",
+	},
+	position_settings_health = {
+		en = "Shield / Dome Health Text",
+	},
 	use_progress_color = {
 		en = "Use progress color (Bar)",
+	},
+	use_progress_color_description = {
+		en = "When enabled, bar color transitions between High, Mid, and Low colors based on remaining duration. When disabled, uses the Static Bar Color.",
 	},
 	use_progress_color_text = {
 		en = "Use progress color (Text)",
 	},
+	use_progress_color_text_description = {
+		en = "When enabled, timer text transitions between High, Mid, and Low colors based on remaining duration. When disabled, uses the Static Text Color.",
+	},
 	bar_color = {
-		en = "Bar Color",
+		en = "Static Bar Color (Without Progress Color)",
+	},
+	bar_color_description = {
+		en = "Solid color used for the bar when 'Use progress color (Bar)' is disabled.",
 	},
 	text_color = {
-		en = "Text Color",
+		en = "Static Text Color (Without Progress Color)",
+	},
+	text_color_description = {
+		en = "Solid color used for timer and charges text when 'Use progress color (Text)' is disabled.",
 	},
 	high_color = {
 		en = "High Duration Color (Progress)",
@@ -93,13 +150,79 @@ return {
 		en = "Cooldown display mode",
 	},
 	cooldown_color = {
-		en = "Cooldown Color",
+		en = "Static Cooldown Color",
+	},
+	cooldown_use_progress_color = {
+		en = "Use progress color for cooldown",
+	},
+	cooldown_low_color = {
+		en = "Cooldown Start Color (0%%)",
+	},
+	cooldown_high_color = {
+		en = "Cooldown Finish Color (100%%)",
 	},
 	cooldown_mode_smooth = {
 		en = "Smooth (start from remaining)",
 	},
 	cooldown_mode_full = {
 		en = "Full (show complete cooldown)",
+	},
+	cooldown_target_timer = {
+		en = "Timer Target",
+	},
+	cooldown_target_bar = {
+		en = "Bar Display Target",
+	},
+	cooldown_target_next_charge = {
+		en = "Current / Next Charge Only",
+	},
+	cooldown_target_until_full = {
+		en = "Until Full (All Charges & Duration)",
+	},
+	segment_bar = {
+		en = "Segment Multi-Charge Bar",
+	},
+	independent_charge_tracking = {
+		en = "Independent Charge Tracking",
+	},
+	independent_charge_tracking_description = {
+		en = "Tracks each ability charge and deployable (walls, domes) in its own dedicated segment, seamlessly flowing from active duration into cooldown recharge.",
+	},
+	segment_gap = {
+		en = "Segment Gap",
+	},
+	ready_charge_color = {
+		en = "Ready Charge Color",
+	},
+	always_show_bar = {
+		en = "Always Show Bar",
+	},
+	bar_notches = {
+		en = "Bar Notches",
+	},
+	notches_none = {
+		en = "None (Solid)",
+	},
+	notches_2 = {
+		en = "2 Notches",
+	},
+	notches_3 = {
+		en = "3 Notches",
+	},
+	notches_4 = {
+		en = "4 Notches",
+	},
+	notches_6 = {
+		en = "6 Notches",
+	},
+	notch_color = {
+		en = "Notch Color",
+	},
+	notch_length = {
+		en = "Notch Length (%%)",
+	},
+	notch_width = {
+		en = "Notch Width",
 	},
 	show_bracket = {
 		en = "Show bracket",
