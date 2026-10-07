@@ -91,9 +91,9 @@ local slot_cooldown_start = {}
 
 local function _apply_progress_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local c_high = mod:get("high_color") or { 255, 17, 90, 239 }
+	local c_high = mod:get("high_color") or { 255, 80, 145, 255 }
 	local c_mid = mod:get("mid_color") or { 255, 255, 115, 80 }
-	local c_low = mod:get("low_color") or { 255, 139, 0, 0 }
+	local c_low = mod:get("low_color") or { 255, 249, 69, 69 }
 
 	if clamped < 0.5 then
 		local t = clamped / 0.5
@@ -111,7 +111,7 @@ end
 local function _apply_peril_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
 	local c_low = mod:get("peril_low_color") or { 255, 255, 105, 180 }
-	local c_high = mod:get("peril_high_color") or { 255, 139, 0, 0 }
+	local c_high = mod:get("peril_high_color") or { 255, 249, 69, 69 }
 
 	color[2] = math.floor(c_low[2] + (c_high[2] - c_low[2]) * clamped + 0.5)
 	color[3] = math.floor(c_low[3] + (c_high[3] - c_low[3]) * clamped + 0.5)
@@ -120,7 +120,7 @@ end
 
 local function _apply_cooldown_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local c_low = mod:get("cooldown_low_color") or { 255, 65, 25, 125 }
+	local c_low = mod:get("cooldown_low_color") or { 255, 80, 70, 254 }
 	local c_high = mod:get("cooldown_high_color") or { 255, 120, 70, 255 }
 
 	color[2] = math.floor(c_low[2] + (c_high[2] - c_low[2]) * clamped + 0.5)
@@ -317,9 +317,9 @@ local function _resolve_charges(ability_extension)
 
 	if mod:get("use_progress_color_text") ~= false then
 		local frac = (max_charges > 0) and (charges / max_charges) or 0
-		local c_high = mod:get("high_color") or { 255, 17, 90, 239 }
+		local c_high = mod:get("high_color") or { 255, 80, 145, 255 }
 		local c_mid = mod:get("mid_color") or { 255, 255, 115, 80 }
-		local c_low = mod:get("low_color") or { 255, 139, 0, 0 }
+		local c_low = mod:get("low_color") or { 255, 249, 69, 69 }
 		local src = (frac == 1 and c_high) or (frac == 0 and c_low) or c_mid
 		charges_color[2], charges_color[3], charges_color[4] = src[2], src[3], src[4]
 	else
