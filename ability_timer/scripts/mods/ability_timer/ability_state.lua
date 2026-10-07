@@ -227,7 +227,7 @@ local function _get_active_deployables()
 	if not lock_slots then
 		for i = 1, #active do
 			local d = active[i]
-			local s = math.min(i, num_segs)
+			local s = ltr and math.min(i, num_segs) or math.max(1, num_segs - i + 1)
 			d.data.slot = s
 			d.slot = s
 		end
@@ -320,6 +320,10 @@ local function _resolve_bubble(active_deployables)
 			end
 		end
 		bubble_list = { lowest_bubble }
+	elseif mode == "both_chronological" and #bubble_list > 1 then
+		table.sort(bubble_list, function(a, b)
+			return a.start_time < b.start_time
+		end)
 	else
 		table.sort(bubble_list, function(a, b)
 			return (a.slot or 1) < (b.slot or 1)

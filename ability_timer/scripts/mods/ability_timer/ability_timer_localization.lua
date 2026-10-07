@@ -30,7 +30,10 @@ return {
 		en = "Bubble Health Display Mode",
 	},
 	bubble_mode_both = {
-		en = "Both (1st placed | 2nd placed)",
+		en = "Both (Mirror Ability Bar)",
+	},
+	bubble_mode_both_chronological = {
+		en = "Both (1st Placed | 2nd Placed)",
 	},
 	bubble_mode_newest = {
 		en = "Newest Bubble Only",

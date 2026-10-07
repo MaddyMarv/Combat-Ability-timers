@@ -65,8 +65,9 @@ local widgets = {
 						localize = true,
 						options = {
 							{ text = "bubble_mode_both", value = "both" },
-							{ text = "bubble_mode_newest", value = "newest" },
+							{ text = "bubble_mode_both_chronological", value = "both_chronological" },
 							{ text = "bubble_mode_lowest", value = "lowest" },
+							{ text = "bubble_mode_newest", value = "newest" },
 							{ text = "bubble_mode_oldest", value = "oldest" },
 						},
 					},
