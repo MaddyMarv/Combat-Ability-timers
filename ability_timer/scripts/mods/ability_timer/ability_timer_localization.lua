@@ -90,7 +90,7 @@ return {
 		en = "Colors",
 	},
 	position_settings = {
-		en = "Position & Typography",
+		en = "Positions",
 	},
 	position_settings_bar = {
 		en = "Gauge Position",
