@@ -27,7 +27,6 @@ local ABILITY_GROUPS = {
 		ogryn_taunt_shout = { setting_id = "ogryn_ability_taunt", buff_templates = { "ogryn_repeat_taunt" } },
 	},
 	adamant = {
-		adamant_shout = { setting_id = "arbites_ability_shout", buff_templates = nil },
 		adamant_charge = { setting_id = "arbites_ability_charge", buff_templates = { "adamant_post_charge_buff" } },
 		adamant_stance = { setting_id = "arbites_ability_stance", buff_templates = { "adamant_hunt_stance" } },
 		adamant_area_buff_drone = { setting_id = "arbites_ability_drone", buff_templates = nil },
