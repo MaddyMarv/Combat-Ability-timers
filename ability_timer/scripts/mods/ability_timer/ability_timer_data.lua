@@ -23,25 +23,26 @@ local widgets = {
 						default_value = "both",
 						localize = true,
 						options = {
-							{ text = "display_mode_both", value = "both" },
+							{ text = "display_mode_both",          value = "both" },
 							{ text = "display_mode_progress_only", value = "progress_only" },
-							{ text = "display_mode_timer_only", value = "timer_only" },
+							{ text = "display_mode_timer_only",    value = "timer_only" },
 						},
 					},
 					{
-						setting_id = "cooldown_target_timer",
-						display_name = mod:localize("cooldown_target_timer"),
-						type = "dropdown",
-						default_value = "next_charge",
-						localize = true,
-						options = {
-							{ text = "cooldown_target_next_charge", value = "next_charge" },
-							{ text = "cooldown_target_until_full", value = "until_full" },
-						},
+						setting_id = "always_show_bar",
+						display_name = mod:localize("always_show_bar"),
+						type = "checkbox",
+						default_value = false,
 					},
 					{
-						setting_id = "show_decimals",
-						display_name = mod:localize("show_decimals"),
+						setting_id = "show_charges",
+						display_name = mod:localize("show_charges"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
+						setting_id = "always_show_charges",
+						display_name = mod:localize("always_show_charges"),
 						type = "checkbox",
 						default_value = true,
 					},
@@ -51,6 +52,30 @@ local widgets = {
 						type = "checkbox",
 						default_value = true,
 					},
+					{
+						setting_id = "show_decimals",
+						display_name = mod:localize("show_decimals"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
+						setting_id = "cooldown_target_timer",
+						display_name = mod:localize("cooldown_target_timer"),
+						type = "dropdown",
+						default_value = "next_charge",
+						localize = true,
+						options = {
+							{ text = "cooldown_target_next_charge", value = "next_charge" },
+							{ text = "cooldown_target_until_full",  value = "until_full" },
+						},
+					},
+				},
+			},
+			{
+				setting_id = "group_display_bubble",
+				display_name = mod:localize("group_display_bubble"),
+				type = "group",
+				sub_widgets = {
 					{
 						setting_id = "show_bubble_health",
 						display_name = mod:localize("show_bubble_health"),
@@ -64,12 +89,25 @@ local widgets = {
 						default_value = "both",
 						localize = true,
 						options = {
-							{ text = "bubble_mode_both", value = "both" },
+							{ text = "bubble_mode_both",               value = "both" },
 							{ text = "bubble_mode_both_chronological", value = "both_chronological" },
-							{ text = "bubble_mode_lowest", value = "lowest" },
-							{ text = "bubble_mode_newest", value = "newest" },
-							{ text = "bubble_mode_oldest", value = "oldest" },
+							{ text = "bubble_mode_lowest",             value = "lowest" },
+							{ text = "bubble_mode_newest",             value = "newest" },
+							{ text = "bubble_mode_oldest",             value = "oldest" },
 						},
+					},
+				},
+			},
+			{
+				setting_id = "group_display_special",
+				display_name = mod:localize("group_display_special"),
+				type = "group",
+				sub_widgets = {
+					{
+						setting_id = "use_scriers_gaze_bar",
+						display_name = mod:localize("use_scriers_gaze_bar"),
+						type = "checkbox",
+						default_value = true,
 					},
 				},
 			},
@@ -85,12 +123,6 @@ local widgets = {
 				display_name = mod:localize("group_gauge_dimensions"),
 				type = "group",
 				sub_widgets = {
-					{
-						setting_id = "always_show_bar",
-						display_name = mod:localize("always_show_bar"),
-						type = "checkbox",
-						default_value = false,
-					},
 					{
 						setting_id = "gauge_length",
 						display_name = mod:localize("gauge_length"),
@@ -125,7 +157,7 @@ local widgets = {
 						default_value = 0,
 						options = {
 							{ text = "orientation_horizontal", value = 0 },
-							{ text = "orientation_vertical", value = 1 },
+							{ text = "orientation_vertical",   value = 1 },
 						},
 					},
 					{
@@ -134,8 +166,8 @@ local widgets = {
 						type = "dropdown",
 						default_value = 1,
 						options = {
-							{ text = "bar_dir_start", value = 1 },
-							{ text = "bar_dir_end", value = 2 },
+							{ text = "bar_dir_start",  value = 1 },
+							{ text = "bar_dir_end",    value = 2 },
 							{ text = "bar_dir_center", value = 3 },
 						},
 					},
@@ -147,21 +179,21 @@ local widgets = {
 				type = "group",
 				sub_widgets = {
 					{
+						setting_id = "segment_bar",
+						display_name = mod:localize("segment_bar"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
 						setting_id = "cooldown_target_bar",
 						display_name = mod:localize("cooldown_target_bar"),
 						type = "dropdown",
 						default_value = "until_full",
 						localize = true,
 						options = {
-							{ text = "cooldown_target_until_full", value = "until_full" },
+							{ text = "cooldown_target_until_full",  value = "until_full" },
 							{ text = "cooldown_target_next_charge", value = "next_charge" },
 						},
-					},
-					{
-						setting_id = "segment_bar",
-						display_name = mod:localize("segment_bar"),
-						type = "checkbox",
-						default_value = true,
 					},
 					{
 						setting_id = "independent_charge_tracking",
@@ -195,12 +227,6 @@ local widgets = {
 						decimals_number = 0,
 						step_size_value = 1,
 					},
-					{
-						setting_id = "ready_charge_color",
-						display_name = mod:localize("ready_charge_color"),
-						type = "color",
-						default_value = { 255, 80, 145, 255 },
-					},
 				},
 			},
 			{
@@ -212,14 +238,14 @@ local widgets = {
 						setting_id = "bar_notches",
 						display_name = mod:localize("bar_notches"),
 						type = "dropdown",
-						default_value = 0,
+						default_value = 4,
 						localize = true,
 						options = {
 							{ text = "notches_none", value = 0 },
-							{ text = "notches_2", value = 2 },
-							{ text = "notches_3", value = 3 },
-							{ text = "notches_4", value = 4 },
-							{ text = "notches_6", value = 6 },
+							{ text = "notches_2",    value = 2 },
+							{ text = "notches_3",    value = 3 },
+							{ text = "notches_4",    value = 4 },
+							{ text = "notches_6",    value = 6 },
 						},
 					},
 					{
@@ -240,11 +266,28 @@ local widgets = {
 						decimals_number = 0,
 						step_size_value = 1,
 					},
+				},
+			},
+			{
+				setting_id = "group_gauge_cooldown",
+				display_name = mod:localize("group_gauge_cooldown"),
+				type = "group",
+				sub_widgets = {
 					{
-						setting_id = "notch_color",
-						display_name = mod:localize("notch_color"),
-						type = "color",
-						default_value = { 255, 88, 99, 80 },
+						setting_id = "track_cooldown",
+						display_name = mod:localize("track_cooldown"),
+						type = "checkbox",
+						default_value = true,
+					},
+					{
+						setting_id = "cooldown_display_mode",
+						type = "dropdown",
+						default_value = "smooth",
+						localize = true,
+						options = {
+							{ text = "cooldown_mode_smooth", value = "smooth" },
+							{ text = "cooldown_mode_full",   value = "full" },
+						},
 					},
 				},
 			},
@@ -272,13 +315,6 @@ local widgets = {
 						type = "color",
 						default_value = { 255, 80, 145, 255 },
 					},
-				},
-			},
-			{
-				setting_id = "group_display_colors_dynamic",
-				display_name = mod:localize("group_display_colors_dynamic"),
-				type = "group",
-				sub_widgets = {
 					{
 						setting_id = "use_progress_color",
 						display_name = mod:localize("use_progress_color"),
@@ -312,26 +348,29 @@ local widgets = {
 				},
 			},
 			{
-				setting_id = "group_display_cooldown",
-				display_name = mod:localize("group_display_cooldown"),
+				setting_id = "group_colors_segments",
+				display_name = mod:localize("group_colors_segments"),
 				type = "group",
 				sub_widgets = {
 					{
-						setting_id = "track_cooldown",
-						display_name = mod:localize("track_cooldown"),
-						type = "checkbox",
-						default_value = true,
+						setting_id = "ready_charge_color",
+						display_name = mod:localize("ready_charge_color"),
+						type = "color",
+						default_value = { 255, 80, 145, 255 },
 					},
 					{
-						setting_id = "cooldown_display_mode",
-						type = "dropdown",
-						default_value = "smooth",
-						localize = true,
-						options = {
-							{ text = "cooldown_mode_smooth", value = "smooth" },
-							{ text = "cooldown_mode_full", value = "full" },
-						},
+						setting_id = "notch_color",
+						display_name = mod:localize("notch_color"),
+						type = "color",
+						default_value = { 255, 88, 99, 80 },
 					},
+				},
+			},
+			{
+				setting_id = "group_display_cooldown_colors",
+				display_name = mod:localize("group_display_cooldown_colors"),
+				type = "group",
+				sub_widgets = {
 					{
 						setting_id = "cooldown_color",
 						display_name = mod:localize("cooldown_color"),
@@ -359,16 +398,10 @@ local widgets = {
 				},
 			},
 			{
-				setting_id = "group_display_scriers",
-				display_name = mod:localize("group_display_scriers"),
+				setting_id = "group_display_scriers_colors",
+				display_name = mod:localize("group_display_scriers_colors"),
 				type = "group",
 				sub_widgets = {
-					{
-						setting_id = "use_scriers_gaze_bar",
-						display_name = mod:localize("use_scriers_gaze_bar"),
-						type = "checkbox",
-						default_value = true,
-					},
 					{
 						setting_id = "scriers_static_color",
 						display_name = mod:localize("scriers_static_color"),
@@ -394,25 +427,6 @@ local widgets = {
 						default_value = { 255, 249, 69, 69 },
 					},
 				},
-			},
-		},
-	},
-	{
-		setting_id = "charges_settings",
-		type = "group",
-		tab = "Charges",
-		sub_widgets = {
-			{
-				setting_id = "show_charges",
-				display_name = mod:localize("show_charges"),
-				type = "checkbox",
-				default_value = true,
-			},
-			{
-				setting_id = "always_show_charges",
-				display_name = mod:localize("always_show_charges"),
-				type = "checkbox",
-				default_value = true,
 			},
 		},
 	},
@@ -470,18 +484,6 @@ local widgets = {
 						step_size_value = 1,
 					},
 					{
-						setting_id = "timer_text_alignment",
-						display_name = mod:localize("timer_text_alignment"),
-						type = "dropdown",
-						default_value = "left",
-						localize = true,
-						options = {
-							{ text = "align_left", value = "left" },
-							{ text = "align_center", value = "center" },
-							{ text = "align_right", value = "right" },
-						},
-					},
-					{
 						setting_id = "timer_text_size",
 						display_name = mod:localize("timer_text_size"),
 						type = "numeric",
@@ -489,6 +491,18 @@ local widgets = {
 						range = { 10, 100 },
 						decimals_number = 0,
 						step_size_value = 1,
+					},
+					{
+						setting_id = "timer_text_alignment",
+						display_name = mod:localize("timer_text_alignment"),
+						type = "dropdown",
+						default_value = "left",
+						localize = true,
+						options = {
+							{ text = "align_left",   value = "left" },
+							{ text = "align_center", value = "center" },
+							{ text = "align_right",  value = "right" },
+						},
 					},
 				},
 			},
@@ -516,18 +530,6 @@ local widgets = {
 						step_size_value = 1,
 					},
 					{
-						setting_id = "charges_text_alignment",
-						display_name = mod:localize("charges_text_alignment"),
-						type = "dropdown",
-						default_value = "right",
-						localize = true,
-						options = {
-							{ text = "align_left", value = "left" },
-							{ text = "align_center", value = "center" },
-							{ text = "align_right", value = "right" },
-						},
-					},
-					{
 						setting_id = "charges_text_size",
 						display_name = mod:localize("charges_text_size"),
 						type = "numeric",
@@ -535,6 +537,18 @@ local widgets = {
 						range = { 10, 100 },
 						decimals_number = 0,
 						step_size_value = 1,
+					},
+					{
+						setting_id = "charges_text_alignment",
+						display_name = mod:localize("charges_text_alignment"),
+						type = "dropdown",
+						default_value = "right",
+						localize = true,
+						options = {
+							{ text = "align_left",   value = "left" },
+							{ text = "align_center", value = "center" },
+							{ text = "align_right",  value = "right" },
+						},
 					},
 				},
 			},
@@ -562,18 +576,6 @@ local widgets = {
 						step_size_value = 1,
 					},
 					{
-						setting_id = "health_text_alignment",
-						display_name = mod:localize("health_text_alignment"),
-						type = "dropdown",
-						default_value = "center",
-						localize = true,
-						options = {
-							{ text = "align_left", value = "left" },
-							{ text = "align_center", value = "center" },
-							{ text = "align_right", value = "right" },
-						},
-					},
-					{
 						setting_id = "health_text_size",
 						display_name = mod:localize("health_text_size"),
 						type = "numeric",
@@ -581,6 +583,18 @@ local widgets = {
 						range = { 10, 100 },
 						decimals_number = 0,
 						step_size_value = 1,
+					},
+					{
+						setting_id = "health_text_alignment",
+						display_name = mod:localize("health_text_alignment"),
+						type = "dropdown",
+						default_value = "center",
+						localize = true,
+						options = {
+							{ text = "align_left",   value = "left" },
+							{ text = "align_center", value = "center" },
+							{ text = "align_right",  value = "right" },
+						},
 					},
 				},
 			},
@@ -596,9 +610,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_veteran"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "veteran_ability_stance", display_name = mod:localize("veteran_ability_stance"), type = "checkbox", default_value = true },
+					{ setting_id = "veteran_ability_stance",  display_name = mod:localize("veteran_ability_stance"),  type = "checkbox", default_value = true },
 					{ setting_id = "veteran_ability_stealth", display_name = mod:localize("veteran_ability_stealth"), type = "checkbox", default_value = true },
-					{ setting_id = "veteran_ability_shout", display_name = mod:localize("veteran_ability_shout"), type = "checkbox", default_value = true },
+					{ setting_id = "veteran_ability_shout",   display_name = mod:localize("veteran_ability_shout"),   type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -606,9 +620,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_zealot"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "zealot_ability_dash", display_name = mod:localize("zealot_ability_dash"), type = "checkbox", default_value = true },
+					{ setting_id = "zealot_ability_dash",         display_name = mod:localize("zealot_ability_dash"),         type = "checkbox", default_value = true },
 					{ setting_id = "zealot_ability_invisibility", display_name = mod:localize("zealot_ability_invisibility"), type = "checkbox", default_value = true },
-					{ setting_id = "zealot_ability_relic", display_name = mod:localize("zealot_ability_relic"), type = "checkbox", default_value = true },
+					{ setting_id = "zealot_ability_relic",        display_name = mod:localize("zealot_ability_relic"),        type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -616,9 +630,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_psyker"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "psyker_ability_shout", display_name = mod:localize("psyker_ability_shout"), type = "checkbox", default_value = true },
+					{ setting_id = "psyker_ability_shout",      display_name = mod:localize("psyker_ability_shout"),      type = "checkbox", default_value = true },
 					{ setting_id = "psyker_ability_overcharge", display_name = mod:localize("psyker_ability_overcharge"), type = "checkbox", default_value = true },
-					{ setting_id = "psyker_ability_shield", display_name = mod:localize("psyker_ability_shield"), type = "checkbox", default_value = true },
+					{ setting_id = "psyker_ability_shield",     display_name = mod:localize("psyker_ability_shield"),     type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -626,9 +640,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_ogryn"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "ogryn_ability_charge", display_name = mod:localize("ogryn_ability_charge"), type = "checkbox", default_value = true },
+					{ setting_id = "ogryn_ability_charge",        display_name = mod:localize("ogryn_ability_charge"),        type = "checkbox", default_value = true },
 					{ setting_id = "ogryn_ability_ranged_stance", display_name = mod:localize("ogryn_ability_ranged_stance"), type = "checkbox", default_value = true },
-					{ setting_id = "ogryn_ability_taunt", display_name = mod:localize("ogryn_ability_taunt"), type = "checkbox", default_value = true },
+					{ setting_id = "ogryn_ability_taunt",         display_name = mod:localize("ogryn_ability_taunt"),         type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -638,7 +652,7 @@ local widgets = {
 				sub_widgets = {
 					{ setting_id = "arbites_ability_charge", display_name = mod:localize("arbites_ability_charge"), type = "checkbox", default_value = true },
 					{ setting_id = "arbites_ability_stance", display_name = mod:localize("arbites_ability_stance"), type = "checkbox", default_value = true },
-					{ setting_id = "arbites_ability_drone", display_name = mod:localize("arbites_ability_drone"), type = "checkbox", default_value = true },
+					{ setting_id = "arbites_ability_drone",  display_name = mod:localize("arbites_ability_drone"),  type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -646,8 +660,8 @@ local widgets = {
 				display_name = mod:localize("ability_filters_broker"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "broker_ability_focus", display_name = mod:localize("broker_ability_focus"), type = "checkbox", default_value = true },
-					{ setting_id = "broker_ability_punk_rage", display_name = mod:localize("broker_ability_punk_rage"), type = "checkbox", default_value = true },
+					{ setting_id = "broker_ability_focus",       display_name = mod:localize("broker_ability_focus"),       type = "checkbox", default_value = true },
+					{ setting_id = "broker_ability_punk_rage",   display_name = mod:localize("broker_ability_punk_rage"),   type = "checkbox", default_value = true },
 					{ setting_id = "broker_ability_stimm_field", display_name = mod:localize("broker_ability_stimm_field"), type = "checkbox", default_value = true },
 				},
 			},
@@ -656,9 +670,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_cryptic"),
 				type = "group",
 				sub_widgets = {
-					{ setting_id = "cryptic_ability_discharge", display_name = mod:localize("cryptic_ability_discharge"), type = "checkbox", default_value = true },
+					{ setting_id = "cryptic_ability_discharge",        display_name = mod:localize("cryptic_ability_discharge"),        type = "checkbox", default_value = true },
 					{ setting_id = "cryptic_ability_precision_stance", display_name = mod:localize("cryptic_ability_precision_stance"), type = "checkbox", default_value = true },
-					{ setting_id = "cryptic_ability_chordclaw", display_name = mod:localize("cryptic_ability_chordclaw"), type = "checkbox", default_value = true },
+					{ setting_id = "cryptic_ability_chordclaw",        display_name = mod:localize("cryptic_ability_chordclaw"),        type = "checkbox", default_value = true },
 				},
 			},
 		},

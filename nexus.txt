@@ -3,30 +3,39 @@ HUD countdown timer showing the active duration of your combat ability.
 [b]Options:[/b]
 
 [b]Display[/b]
+- Show Ability Timer UI
 - Display Mode [Timer + Progress Bar, Progress Bar Only, Timer Only]
-- Show Bracket & Bubble Health (%)
-- Default Bar & Text Colors
-- Use Progress Color Toggles (Bar, Text)
-- High, Mid, Low Duration Colors
-- Track Cooldown
-- Cooldown Display Mode [Smooth (start from remaining), Full (show complete cooldown)]
-- Cooldown Color
-- Scrier's Gaze Bar (Use Gaze Bar, Static/Progress Peril Color, Low & High Peril Colors)
-
-[b]Charges[/b]
+- Always Show Gauge
 - Show Ability Charges
 - Always Show Charges (even at 1 or 0)
+- Show Bracket & Decimals
+- Cooldown Target Timer [Next Charge, Until Full]
+- Show Bubble Shield Health & Display Mode [Both (Mirror Ability Bar), Both (Chronological), Lowest Health Only, Newest Bubble Only, Oldest Bubble Only]
+- Enable Special Scrier's Gaze Bar
 
 [b]Gauge[/b]
 - Gauge Length & Thickness
 - Gauge Opacity
 - Orientation [Horizontal, Vertical]
 - Bar Direction [Start, End, Center]
+- Segmented Bar & Cooldown Target Bar [Until Full, Next Charge]
+- Independent Charge Tracking & Fixed Charge Slots
+- Consume Order [Right to Left, Left to Right] & Segment Spacing
+- Bar Notches [None, 2, 3, 4, 6], Length & Width
+- Show Cooldown on Gauge & Cooldown Display Mode [Smooth Animation, Full Duration]
+
+[b]Colors[/b]
+- Base Active Bar & Text Colors
+- Use Progress Colors (Bar & Text)
+- High (>66%), Mid (33-66%), Low (<33%) Duration Colors
+- Ready Charge Segment & Bar Notch Divider Colors
+- Static Cooldown Color & Progress Cooldown Colors (0% & 100%)
+- Static Peril Color & Progress Peril Colors (<50% & >50%)
 
 [b]Position[/b]
-- X/Y Offset Options (Bar, Timer Text, Charges, Bubble Health)
-- Text Alignment [Left, Center, Right]
-- Text Size
+- X/Y Offset Options (Gauge, Timer Text, Charges, Bubble Health)
+- Text Alignment [Left, Center, Right] (Timer Text, Charges, Bubble Health)
+- Text Size (Timer Text, Charges, Bubble Health)
 
 [b]Filters[/b]
 - Track Specific Abilities & Buffs (Voice of Command, Volley Fire, Scrier's Gaze, Point-Blank Barrage, Bull Rush, Chorus of Spiritual Fortitude, Fury of the Faithful, Shroudfield, Telekine Shield, etc...)

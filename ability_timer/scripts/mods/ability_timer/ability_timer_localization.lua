@@ -51,19 +51,28 @@ return {
 		en = "Display the mod's on-screen Hud Elements. (Use this if you want to use HUD Studio to display the Ui elements.)"
 	},
 	group_display_base = {
-		en = "Base Settings",
+		en = "Base Display",
+	},
+	group_display_bubble = {
+		en = "Bubble Shield Health",
+	},
+	group_display_special = {
+		en = "Special Mechanics",
 	},
 	group_display_colors_static = {
-		en = "Static Colors (Without Progress Color)",
+		en = "Active Duration Colors",
 	},
 	group_display_colors_dynamic = {
 		en = "Dynamic Progress Colors",
 	},
-	group_display_cooldown = {
-		en = "Cooldown Tracking",
+	group_colors_segments = {
+		en = "Ready Charges & Notches",
 	},
-	group_display_scriers = {
-		en = "Scrier's Gaze Tracking",
+	group_display_cooldown_colors = {
+		en = "Cooldown Colors",
+	},
+	group_display_scriers_colors = {
+		en = "Scrier's Gaze / Peril Colors",
 	},
 	group_gauge_dimensions = {
 		en = "Dimensions & Flow",
@@ -73,6 +82,9 @@ return {
 	},
 	group_gauge_notches = {
 		en = "Bar Notches",
+	},
+	group_gauge_cooldown = {
+		en = "Cooldown Mechanics",
 	},
 	color_settings = {
 		en = "Colors",
