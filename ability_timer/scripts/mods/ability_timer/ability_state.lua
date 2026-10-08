@@ -39,7 +39,7 @@ local ABILITY_GROUPS = {
 	cryptic = {
 		cryptic_discharge = { setting_id = "cryptic_ability_discharge", buff_templates = { "cryptic_discharge_weapon_shock_effect", "cryptic_discharge_attack_speed_increase" } },
 		cryptic_precision_stance = { setting_id = "cryptic_ability_precision_stance", buff_templates = { "cryptic_precision_stance_one_charge", "cryptic_precision_stance_two_charges", "cryptic_precision_stance_three_charges" } },
-		cryptic_chordclaw = { setting_id = "cryptic_ability_chordclaw", buff_templates = nil },
+		cryptic_chordclaw = { setting_id = "cryptic_ability_chordclaw", buff_templates = { "cryptic_chordclaw_consecutive_bonus" } },
 	},
 }
 
