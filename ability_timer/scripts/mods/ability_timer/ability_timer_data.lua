@@ -610,6 +610,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_veteran"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "veteran_ability_default", display_name = mod:localize("veteran_ability_default"), type = "checkbox", default_value = true },
 					{ setting_id = "veteran_ability_stance",  display_name = mod:localize("veteran_ability_stance"),  type = "checkbox", default_value = true },
 					{ setting_id = "veteran_ability_stealth", display_name = mod:localize("veteran_ability_stealth"), type = "checkbox", default_value = true },
 					{ setting_id = "veteran_ability_shout",   display_name = mod:localize("veteran_ability_shout"),   type = "checkbox", default_value = true },
@@ -620,6 +621,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_zealot"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "zealot_ability_default",      display_name = mod:localize("zealot_ability_default"),      type = "checkbox", default_value = true },
 					{ setting_id = "zealot_ability_dash",         display_name = mod:localize("zealot_ability_dash"),         type = "checkbox", default_value = true },
 					{ setting_id = "zealot_ability_invisibility", display_name = mod:localize("zealot_ability_invisibility"), type = "checkbox", default_value = true },
 					{ setting_id = "zealot_ability_relic",        display_name = mod:localize("zealot_ability_relic"),        type = "checkbox", default_value = true },
@@ -630,6 +632,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_psyker"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "psyker_ability_default",    display_name = mod:localize("psyker_ability_default"),    type = "checkbox", default_value = true },
 					{ setting_id = "psyker_ability_shout",      display_name = mod:localize("psyker_ability_shout"),      type = "checkbox", default_value = true },
 					{ setting_id = "psyker_ability_overcharge", display_name = mod:localize("psyker_ability_overcharge"), type = "checkbox", default_value = true },
 					{ setting_id = "psyker_ability_shield",     display_name = mod:localize("psyker_ability_shield"),     type = "checkbox", default_value = true },
@@ -640,6 +643,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_ogryn"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "ogryn_ability_default",        display_name = mod:localize("ogryn_ability_default"),        type = "checkbox", default_value = true },
 					{ setting_id = "ogryn_ability_charge",        display_name = mod:localize("ogryn_ability_charge"),        type = "checkbox", default_value = true },
 					{ setting_id = "ogryn_ability_ranged_stance", display_name = mod:localize("ogryn_ability_ranged_stance"), type = "checkbox", default_value = true },
 					{ setting_id = "ogryn_ability_taunt",         display_name = mod:localize("ogryn_ability_taunt"),         type = "checkbox", default_value = true },
@@ -650,9 +654,9 @@ local widgets = {
 				display_name = mod:localize("ability_filters_arbites"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "arbites_ability_drone",  display_name = mod:localize("arbites_ability_drone"),  type = "checkbox", default_value = true },
 					{ setting_id = "arbites_ability_charge", display_name = mod:localize("arbites_ability_charge"), type = "checkbox", default_value = true },
 					{ setting_id = "arbites_ability_stance", display_name = mod:localize("arbites_ability_stance"), type = "checkbox", default_value = true },
-					{ setting_id = "arbites_ability_drone",  display_name = mod:localize("arbites_ability_drone"),  type = "checkbox", default_value = true },
 				},
 			},
 			{
@@ -660,6 +664,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_broker"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "broker_ability_default",     display_name = mod:localize("broker_ability_default"),     type = "checkbox", default_value = true },
 					{ setting_id = "broker_ability_focus",       display_name = mod:localize("broker_ability_focus"),       type = "checkbox", default_value = true },
 					{ setting_id = "broker_ability_punk_rage",   display_name = mod:localize("broker_ability_punk_rage"),   type = "checkbox", default_value = true },
 					{ setting_id = "broker_ability_stimm_field", display_name = mod:localize("broker_ability_stimm_field"), type = "checkbox", default_value = true },
@@ -670,6 +675,7 @@ local widgets = {
 				display_name = mod:localize("ability_filters_cryptic"),
 				type = "group",
 				sub_widgets = {
+					{ setting_id = "cryptic_ability_default",          display_name = mod:localize("cryptic_ability_default"),          type = "checkbox", default_value = true },
 					{ setting_id = "cryptic_ability_discharge",        display_name = mod:localize("cryptic_ability_discharge"),        type = "checkbox", default_value = true },
 					{ setting_id = "cryptic_ability_precision_stance", display_name = mod:localize("cryptic_ability_precision_stance"), type = "checkbox", default_value = true },
 					{ setting_id = "cryptic_ability_chordclaw",        display_name = mod:localize("cryptic_ability_chordclaw"),        type = "checkbox", default_value = true },

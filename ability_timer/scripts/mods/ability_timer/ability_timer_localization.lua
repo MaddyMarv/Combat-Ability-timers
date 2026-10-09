@@ -426,6 +426,25 @@ return {
 		en = "Skitarii",
 	},
 
+	veteran_ability_default = {
+		en = "Starter Ability (Volley Fire)",
+	},
+	zealot_ability_default = {
+		en = "Starter Ability (Chastise the Wicked)",
+	},
+	psyker_ability_default = {
+		en = "Starter Ability (Psykinetic's Wrath)",
+	},
+	ogryn_ability_default = {
+		en = "Starter Ability (Bull Rush)",
+	},
+	broker_ability_default = {
+		en = "Starter Ability (Desperado)",
+	},
+	cryptic_ability_default = {
+		en = "Starter Ability (Voltaic Expander)",
+	},
+
 	veteran_ability_stance = {
 		en = "Executioner's Stance"
 	},
@@ -439,10 +458,10 @@ return {
 		en = "Shroudfield"
 	},
 	zealot_ability_dash = {
-		en = "Chastise the Wicked"
+		en = "Fury of the Faithful"
 	},
 	zealot_ability_relic = {
-		en = "Bolstering Prayer"
+		en = "Chorus of Spiritual Fortitude"
 	},
 	psyker_ability_overcharge = {
 		en = "Scrier's Gaze"
@@ -460,7 +479,7 @@ return {
 		en = "Loyal Protector"
 	},
 	ogryn_ability_charge = {
-		en = "Bull Rush"
+		en = "Indomitable"
 	},
 	arbites_ability_stance = {
 		en = "Castigator's Stance"
@@ -469,24 +488,24 @@ return {
 		en = "Break the Line"
 	},
 	arbites_ability_drone = {
-		en = "Nuncio / Drone"
+		en = "Nuncio-Aquila"
 	},
 	broker_ability_focus = {
-		en = "Desperado"
+		en = "Enhanced Desperado"
 	},
 	broker_ability_punk_rage = {
-		en = "Rampage"
+		en = "Rampage!"
 	},
 	broker_ability_stimm_field = {
 		en = "Stimm Supply"
 	},
 	cryptic_ability_discharge = {
-		en = "Discharge"
+		en = "Voltaic Emitter"
 	},
 	cryptic_ability_precision_stance = {
-		en = "Adaptive Combat"
+		en = "Advanced Combat Doctrines"
 	},
 	cryptic_ability_chordclaw = {
-		en = "Chordclaw"
+		en = "Chordclaw Strike"
 	},
 }

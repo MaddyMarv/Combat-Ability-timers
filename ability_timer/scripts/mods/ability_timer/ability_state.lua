@@ -43,6 +43,15 @@ local ABILITY_GROUPS = {
 	},
 }
 
+local BASE_COMBAT_ABILITIES = {
+	veteran_combat_ability_stance = "veteran_ability_default",
+	zealot_targeted_dash = "zealot_ability_default",
+	psyker_discharge_shout = "psyker_ability_default",
+	ogryn_charge = "ogryn_ability_default",
+	broker_ability_focus = "broker_ability_default",
+	cryptic_discharge_base = "cryptic_ability_default",
+}
+
 local CLASS_SETTINGS = {
 	veteran = "show_veteran",
 	zealot = "show_zealot",
@@ -1051,7 +1060,9 @@ local function _resolve()
 
 	if mod:get(CLASS_SETTINGS[archetype_name]) == false then return end
 
-	local ability_enabled = mod:get(tracked.setting_id) ~= false
+	local default_setting_id = combat_ability and BASE_COMBAT_ABILITIES[combat_ability.name]
+	local setting_id = default_setting_id or tracked.setting_id
+	local ability_enabled = mod:get(setting_id) ~= false
 	local active_deployables = _get_active_deployables()
 
 	if ability_enabled then
