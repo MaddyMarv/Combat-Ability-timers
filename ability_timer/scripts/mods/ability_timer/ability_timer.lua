@@ -282,7 +282,7 @@ mod.on_all_mods_loaded = function()
 	})
 
 	local Straight = hud_studio.hud_studio_progress_bar_straight
-	local DrawCalls = hud_studio.draw_calls
+	local DrawCalls = hud_studio.hud_studio_draw_calls or hud_studio.draw_calls
 	if Straight and DrawCalls then
 		mod:hook(Straight, "draw", function(func, ctx, ...)
 			local at_state = mod.get_ability_state()
@@ -293,8 +293,8 @@ mod.on_all_mods_loaded = function()
 				return func(ctx, ...)
 			end
 
-			local seg_colors = fill_c._at_segment_colors
-			local seg_fractions = fill_c._at_segment_fractions
+			local seg_colors = fill_c._at_segment_colors or (at_state and at_state.segment_colors)
+			local seg_fractions = fill_c._at_segment_fractions or (at_state and at_state.segment_fractions)
 			local notches_per_seg = at_state and at_state.notches_per_seg or 0
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
@@ -513,8 +513,8 @@ mod.on_all_mods_loaded = function()
 				return func(ctx, ...)
 			end
 
-			local seg_colors = fill_c._at_segment_colors
-			local seg_fractions = fill_c._at_segment_fractions
+			local seg_colors = fill_c._at_segment_colors or (at_state and at_state.segment_colors)
+			local seg_fractions = fill_c._at_segment_fractions or (at_state and at_state.segment_fractions)
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
 			if not has_multi then
@@ -645,8 +645,8 @@ mod.on_all_mods_loaded = function()
 				return func(ctx, ...)
 			end
 
-			local seg_colors = fill_c._at_segment_colors
-			local seg_fractions = fill_c._at_segment_fractions
+			local seg_colors = fill_c._at_segment_colors or (at_state and at_state.segment_colors)
+			local seg_fractions = fill_c._at_segment_fractions or (at_state and at_state.segment_fractions)
 			local has_multi = (seg_colors and #seg_colors > 1) or (seg_fractions and #seg_fractions > 1)
 
 			if not has_multi then
