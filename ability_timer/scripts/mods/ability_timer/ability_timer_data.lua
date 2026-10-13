@@ -1,4 +1,4 @@
-﻿local mod = get_mod("ability_timer")
+local mod = get_mod("ability_timer")
 
 local widgets = {
 	{
