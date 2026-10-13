@@ -1,10 +1,10 @@
-local mod = get_mod("ability_timer")
+﻿local mod = get_mod("ability_timer")
 
 local widgets = {
 	{
 		setting_id = "display_settings",
 		type = "group",
-		tab = "Display",
+		tab = mod:localize("display_settings"),
 		sub_widgets = {
 			{
 				setting_id = "group_display_base",
@@ -116,7 +116,7 @@ local widgets = {
 	{
 		setting_id = "gauge_settings",
 		type = "group",
-		tab = "Gauge",
+		tab = mod:localize("gauge_settings"),
 		sub_widgets = {
 			{
 				setting_id = "group_gauge_dimensions",
@@ -296,7 +296,7 @@ local widgets = {
 	{
 		setting_id = "color_settings",
 		type = "group",
-		tab = "Colors",
+		tab = mod:localize("color_settings"),
 		sub_widgets = {
 			{
 				setting_id = "group_display_colors_static",
@@ -433,7 +433,7 @@ local widgets = {
 	{
 		setting_id = "position_settings",
 		type = "group",
-		tab = "Position",
+		tab = mod:localize("position_settings"),
 		sub_widgets = {
 			{
 				setting_id = "position_settings_bar",
@@ -603,7 +603,7 @@ local widgets = {
 	{
 		setting_id = "ability_filters",
 		type = "group",
-		tab = "Filters",
+		tab = mod:localize("ability_filters"),
 		sub_widgets = {
 			{
 				setting_id = "ability_filters_veteran",

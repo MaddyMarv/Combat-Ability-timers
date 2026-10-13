@@ -9,38 +9,56 @@ local packages_to_load = {
 	"packages/ui/hud/player_ability/player_ability",
 }
 
-mod.on_enabled = function()
-	for _, package_path in ipairs(packages_to_load) do
-		Managers.package:load(package_path, mod:get_name(), nil, true)
+mod.on_enabled = function(is_first_call)
+	if Managers.package then
+		for _, package_path in ipairs(packages_to_load) do
+			Managers.package:load(package_path, mod:get_name(), nil, true)
+		end
 	end
+end
 
-	mod:register_hud_element({
-		class_name = "HudElementAbilityTimerText",
-		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerText",
-		visibility_groups = { "alive" },
-		use_hud_scale = false,
-	})
+mod:register_hud_element({
+	class_name = "HudElementAbilityTimerText",
+	filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerText",
+	visibility_groups = { "alive" },
+	use_hud_scale = false,
+})
 
-	mod:register_hud_element({
-		class_name = "HudElementAbilityTimerBar",
-		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerBar",
-		visibility_groups = { "alive" },
-		use_hud_scale = false,
-	})
+mod:register_hud_element({
+	class_name = "HudElementAbilityTimerBar",
+	filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerBar",
+	visibility_groups = { "alive" },
+	use_hud_scale = false,
+})
 
-	mod:register_hud_element({
-		class_name = "HudElementAbilityTimerHealth",
-		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerHealth",
-		visibility_groups = { "alive" },
-		use_hud_scale = false,
-	})
+mod:register_hud_element({
+	class_name = "HudElementAbilityTimerHealth",
+	filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerHealth",
+	visibility_groups = { "alive" },
+	use_hud_scale = false,
+})
 
-	mod:register_hud_element({
-		class_name = "HudElementAbilityTimerCharges",
-		filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerCharges",
-		visibility_groups = { "alive" },
-		use_hud_scale = false,
-	})
+mod:register_hud_element({
+	class_name = "HudElementAbilityTimerCharges",
+	filename = "ability_timer/scripts/mods/ability_timer/hud/HudElementAbilityTimerCharges",
+	visibility_groups = { "alive" },
+	use_hud_scale = false,
+})
+
+local function _cleanup_state()
+	if mod.tracked_deployables then
+		table.clear(mod.tracked_deployables)
+	end
+end
+
+mod.on_disabled = function(is_first_call)
+	_cleanup_state()
+end
+
+mod.on_unload = function(exit_game)
+	if exit_game then
+		_cleanup_state()
+	end
 end
 
 mod.on_setting_changed = function(setting_id)
@@ -81,13 +99,13 @@ end
 
 local COMBAT_ABILITY = "combat_ability"
 
-local function _add_deployable(unit, name, duration, icon, game_session, game_object_id, max_health)
+local function _add_deployable(unit, name, duration, icon, game_session, game_object_id, max_health, start_time, current_health)
     if not unit then return end
+    if mod.tracked_deployables[unit] then return end
 
     local player = Managers.player and Managers.player:local_player(1)
     local player_unit = player and player.player_unit
     local ability_extension = player_unit and ScriptUnit.has_extension(player_unit, "ability_system")
-    local remaining_charges = ability_extension and ability_extension:remaining_ability_charges(COMBAT_ABILITY)
     local raw_max = ability_extension and ability_extension:max_ability_charges(COMBAT_ABILITY)
     local max_charges = (raw_max and raw_max > 0) and raw_max or 1
 
@@ -116,19 +134,88 @@ local function _add_deployable(unit, name, duration, icon, game_session, game_ob
         assigned_slot = 1
     end
 
+    local t = (Managers.time and Managers.time:has_timer("gameplay")) and Managers.time:time("gameplay") or 0
+    local final_start_time = start_time or t
+    local final_current_health = current_health or max_health
+
     mod.tracked_deployables[unit] = {
         name = name,
-        start_time = Managers.time:time("gameplay"),
+        start_time = final_start_time,
         duration = duration,
         icon = icon,
         game_session = game_session,
         game_object_id = game_object_id,
         max_health = max_health,
-        current_health = max_health,
-        damage_taken = 0,
+        current_health = final_current_health,
+        damage_taken = math.max(0, (max_health or 0) - (final_current_health or max_health or 0)),
         last_poll_time = -math.huge,
         slot = assigned_slot,
     }
+end
+
+mod.scan_existing_deployables = function()
+    local player = Managers.player and Managers.player:local_player(1)
+    local player_unit = player and player.player_unit
+    if not player_unit then return end
+
+    local time_manager = Managers.time
+    if not time_manager or not time_manager:has_timer("gameplay") then return end
+    local t = time_manager:time("gameplay")
+
+    local ext_sys = Managers.state.extension
+    if not ext_sys then return end
+
+    local ffs = ext_sys:system("force_field_system")
+    if ffs and ffs._unit_to_extension_map then
+        local talent_settings = require("scripts/settings/talent/talent_settings")
+        local shield_settings = talent_settings.psyker_3 and talent_settings.psyker_3.combat_ability
+        for unit, ext in pairs(ffs._unit_to_extension_map) do
+            if ext.owner_unit == player_unit and not ext:is_dead() and ext:remaining_duration() > 0 then
+                if not mod.tracked_deployables[unit] then
+                    local is_bubble = ext:is_sphere_shield()
+                    local max_health = shield_settings and (is_bubble and shield_settings.sphere_health or shield_settings.health) or 100
+                    local max_duration = ext._max_duration or 20
+                    local rem = ext:remaining_duration()
+                    local start_time = t - (max_duration - rem)
+                    local icon = "content/ui/textures/icons/abilities/hud/psyker/psyker_ability_force_field"
+                    local current_health = ext._health_extension and ext._health_extension:current_health() or max_health
+
+                    _add_deployable(unit, "psyker_shield", max_duration, icon, ext._game_session, ext._game_object_id, max_health, start_time, current_health)
+                end
+            end
+        end
+    end
+
+    local prox_sys = ext_sys:system("proximity_system")
+    if prox_sys and prox_sys.proximity_units_by_owner then
+        local owned_units = prox_sys:proximity_units_by_owner(player_unit)
+        if owned_units then
+            for _, unit in ipairs(owned_units) do
+                if ALIVE[unit] and not mod.tracked_deployables[unit] then
+                    local prox_ext = ScriptUnit.has_extension(unit, "proximity_system")
+                    if prox_ext and prox_ext._logic then
+                        local logic = prox_ext._logic
+                        local logic_class = logic.__class_name
+                        if logic_class == "ProximityBrokerStimmField" and logic._life_time then
+                            local lifetime = logic._life_time
+                            local start_time = logic._start_time or t
+                            local rem = lifetime - (t - start_time)
+                            if rem > 0 then
+                                _add_deployable(unit, "broker_stimm_field", lifetime, "content/ui/textures/icons/buffs/hud/broker/broker_stimm_field", nil, nil, nil, start_time)
+                            end
+                        elseif logic_class == "ProximityAreaBuffDrone" and logic._life_time then
+                            local lifetime = logic._life_time
+                            local start_time = logic._start_time or t
+                            local rem = lifetime - (t - start_time)
+                            if rem > 0 then
+                                _add_deployable(unit, "adamant_drone", lifetime, "content/ui/textures/icons/abilities/hud/adamant/adamant_ability_area_buff_drone", nil, nil, nil, start_time)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function _remove_deployable(unit)

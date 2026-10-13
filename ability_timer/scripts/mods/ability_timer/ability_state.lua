@@ -195,6 +195,10 @@ local function _get_buff_remaining_time(buff_extension, buff_template_names)
 end
 
 local function _get_active_deployables()
+	if mod.scan_existing_deployables then
+		mod.scan_existing_deployables()
+	end
+
 	local deployables = mod.tracked_deployables
 	if not deployables then
 		return {}
