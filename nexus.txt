@@ -1,7 +1,7 @@
 HUD countdown timer showing the active duration of your combat ability.
 
-[b]Options:[/b]
-
+[b]Mod Settings / Commands:[/b]
+[spoiler]
 [b]Display[/b]
 - Show Ability Timer UI
 - Display Mode [Timer + Progress Bar, Progress Bar Only, Timer Only]
@@ -39,6 +39,7 @@ HUD countdown timer showing the active duration of your combat ability.
 
 [b]Filters[/b]
 - Track Specific Abilities & Buffs (Voice of Command, Volley Fire, Scrier's Gaze, Point-Blank Barrage, Bull Rush, Chorus of Spiritual Fortitude, Fury of the Faithful, Shroudfield, Telekine Shield, etc...)
+[/spoiler]
 
 [b]Links:[/b]
 [url=https://github.com/MaddyMarv/Combat-Ability-timers]Source Code[/url] | [url=https://www.nexusmods.com/profile/indicabunny]Nexus Mods Profile[/url] | [url=https://ko-fi.com/indicabunny]Support Me on Ko-fi[/url]
