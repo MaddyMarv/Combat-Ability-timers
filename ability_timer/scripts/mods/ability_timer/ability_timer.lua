@@ -44,6 +44,8 @@ mod.on_enabled = function()
 end
 
 mod.on_setting_changed = function(setting_id)
+	mod.clear_color_cache()
+
 	local ui_manager = Managers.ui
 	if not ui_manager then return end
 	local hud = ui_manager._hud

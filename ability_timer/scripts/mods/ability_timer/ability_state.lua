@@ -104,11 +104,26 @@ local last_known_charges = nil
 local last_known_max_charges = nil
 local current_buff_slot = nil
 
+local color_cache = {}
+
+local function _color(setting_id, default)
+	local c = color_cache[setting_id]
+	if not c then
+		c = mod:get(setting_id) or default
+		color_cache[setting_id] = c
+	end
+	return c
+end
+
+mod.clear_color_cache = function()
+	table.clear(color_cache)
+end
+
 local function _apply_progress_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local c_high = mod:get("high_color") or { 255, 80, 145, 255 }
-	local c_mid = mod:get("mid_color") or { 255, 255, 115, 80 }
-	local c_low = mod:get("low_color") or { 255, 249, 69, 69 }
+	local c_high = _color("high_color", { 255, 80, 145, 255 })
+	local c_mid = _color("mid_color", { 255, 255, 115, 80 })
+	local c_low = _color("low_color", { 255, 249, 69, 69 })
 
 	if clamped < 0.5 then
 		local t = clamped / 0.5
@@ -125,8 +140,8 @@ end
 
 local function _apply_peril_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local c_low = mod:get("peril_low_color") or { 255, 255, 105, 180 }
-	local c_high = mod:get("peril_high_color") or { 255, 249, 69, 69 }
+	local c_low = _color("peril_low_color", { 255, 255, 105, 180 })
+	local c_high = _color("peril_high_color", { 255, 249, 69, 69 })
 
 	color[2] = math.floor(c_low[2] + (c_high[2] - c_low[2]) * clamped + 0.5)
 	color[3] = math.floor(c_low[3] + (c_high[3] - c_low[3]) * clamped + 0.5)
@@ -135,8 +150,8 @@ end
 
 local function _apply_cooldown_color(frac, color)
 	local clamped = math.max(0, math.min(1, frac or 0))
-	local c_low = mod:get("cooldown_low_color") or { 255, 80, 70, 254 }
-	local c_high = mod:get("cooldown_high_color") or { 255, 120, 70, 255 }
+	local c_low = _color("cooldown_low_color", { 255, 80, 70, 254 })
+	local c_high = _color("cooldown_high_color", { 255, 120, 70, 255 })
 
 	color[2] = math.floor(c_low[2] + (c_high[2] - c_low[2]) * clamped + 0.5)
 	color[3] = math.floor(c_low[3] + (c_high[3] - c_low[3]) * clamped + 0.5)
